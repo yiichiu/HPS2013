@@ -1,0 +1,29 @@
+Mint Problem:
+   Consider the subdollar prices from 1 to 99. Find a set of 5 coins that will give you the smallest
+   expected number of coins needed to get to any price. Assume that we will always minimize the
+   number of coins for each price.
+
+1. The prices can only be achieved by adding any number of the 5 chosen coins together.
+
+2. The prices can be achieved by adding or subtracting and number of the 5 chosen coins together.
+   You can also use an arbitrary number of dollar bills. Usage of a dollar bill will not count
+   towards the number of coins used.
+
+   The distribution of coins is based on N, such that:
+---------------------------------------------------------------------------------------------------
+      Score = sum(prices !x5) + sum(N * prices x5).
+      *Where prices (!)x5 are prices that are (not) multiples of 5.
+---------------------------------------------------------------------------------------------------
+
+   Another way to look at the problem is as an attempt to minimize score given N and the methods by
+   which we can get to prices (as defined in 1 and 2).
+
+Attempt:
+   My team actually used different code for the competition but mint.py is my python implementation
+   of some ideas my teammate, Chill, came up with.
+
+   To Run:
+   python mint.py N problemNumber
+
+   *Where N determines the distribution of coins as seen in Score and problemNumber refers to either
+   problem 1 or 2.
