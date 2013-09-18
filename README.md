@@ -1,8 +1,9 @@
 HPS2013
 =======
-
-Coding projects for Heuristics Problem Solving Class
 *** These are for my future reference. Use at your own risk.
 
-Problems:
+Coding projects for Heuristics Problem Solving Class
+
+-#- Problem Name -- Notes on method used
+
 1. Mint -- Dynamic Programming Brute Force Solution
