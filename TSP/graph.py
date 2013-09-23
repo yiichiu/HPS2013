@@ -1,7 +1,9 @@
 import math
+import copy
+import threading
 
 class Graph:
-  __distanceMatrix = None
+  edges = dict()
   cities = None
 
   def __init__(self, rawMap):
@@ -35,14 +37,12 @@ class Graph:
       coordinates[i][1] = int(y)
       coordinates[i][2] = int(z)
 
-    # Initialize a distance Matrix [from][to].
-    self.__distanceMatrix = [[float('Inf') for _ in range(numberOfCities)] for _ in
-        range(numberOfCities)]
-
-    # Populate distance matrix.
+    # Populate Edges
     for i in range(0, numberOfCities):
       for j in range(i + 1, numberOfCities):
-        self.__distanceMatrix[i][j] = self.__getDistance(i, j, coordinates)
+        a = self.cities[i]
+        b = self.cities[j]
+        self.edges.update({(a,b):self.__getDistance(i, j, coordinates)})
 
   def __getDistance(self, a, b, coordinates):
     a_x = coordinates[a][0]
@@ -56,24 +56,30 @@ class Graph:
     distance = math.sqrt(pow(a_x - b_x, 2) + pow(a_y - b_y, 2) + pow(a_z - b_z, 2))
     return distance
 
-  def __getDistanceMatrixCoordinates(self, a):
-    # Align city name to index in internal city list.
-    # a = self.cities.index(a)
-    a = a - 1
-    return a
-
   def getDistance(self, a, b):
-    a = self.__getDistanceMatrixCoordinates(a)
-    b = self.__getDistanceMatrixCoordinates(b)
-
     # To save time we only calculate the upper triangle of the distance matrix. However since the
     # distance matrix is symetric, we can just get the distance by reversing the inputs.
-    distance = self.__distanceMatrix[a][b]
-    if a != b and distance == float('Inf'):
-      distance = self.__distanceMatrix[b][a]
-    if a != b and distance == float('Inf'):
-      raise Exception("Distance is Inf between two distinct cities")
+    if a < b: 
+      distance = self.edges[(a,b)]
+    elif a > b:
+      distance = self.edges[(b,a)]
+    else:
+      distance = float('Inf')
     return distance
+
+  def getLongestEdge(self, path):
+    path = path + [path[0]]
+
+    longestEdge = None
+    maxDistance = 0
+    for i in range(0, len(path) - 1):
+      a = path[i]
+      b = path[i + 1]
+      distance = self.getDistance(a, b)
+      if distance > maxDistance:
+        maxDistance = distance
+        longestEdge = [a, b]
+    return (longestEdge, maxDistance)
 
   def getClosestNeighbors(self, a, neighborSet = None):
     if neighborSet is None:
@@ -83,7 +89,7 @@ class Graph:
     minimalDistance = min(neighborDistances)
 
     closestNeighbors = [neighborSet[i] for i, d in enumerate(neighborDistances) if d == minimalDistance]
-    return closestNeighbors
+    return (closestNeighbors, minimalDistance)
 
   def getScore(self, solution):
     score = 0
@@ -92,6 +98,69 @@ class Graph:
       toCity = solution[i + 1]
       score = score + self.getDistance(fromCity, toCity)
     return score
+
+  def randomSwap(self, path):
+    score = self.getScore(path)
+    while True:
+      stayInLoop = False
+      for i in range(0, len(path) - 1):
+        for j in range(i + 1, len(path)):
+          tempPath = copy.deepcopy(path)
+          tempPath[i], tempPath[j] = tempPath[j], tempPath[i]
+          newScore = self.getScore(tempPath)
+          if score > newScore:
+            score = newScore
+            path = tempPath
+            stayInLoop = True
+    return path
+
+  def getBestNeighborWalkThreading(self):
+    q = Queue.Queue()
+    for i in range(0, len(self.cities), 100):
+      j = i + 1
+      if j > len(self.cities):
+        j = len(self.cities)
+      t = threading.Thread(target = self.getBestNeighborWalk, args = (i, j, q))
+      t.daemon = True
+      t.start()
+    bestPath = None
+    bestScore = float('Inf')
+    for i in range(0, 10):
+      (path, score) = q.get(True)
+      if score < bestScore:
+        bestPath = path
+    return bestPath
+
+  def getBestNeighborWalk(self, i = 0, j = None, q = None):
+    if j == None:
+      len(self.cities)
+    bestScore = float('Inf')
+    bestPath = None
+    for i in range(i, j):
+      startingPoint = self.cities[i]
+      (path, score) = self.nearestNeighborWalk(startingPoint, bestScore)
+      if score < bestScore:
+        bestScore = score
+        bestPath = path
+    result = (bestPath, bestScore)
+    if q == None:
+      return result
+    else:
+      q.put(result)
+
+
+  def nearestNeighborWalk(self, startingPoint, scoreToBeat = float('Inf')):
+    path = [startingPoint]
+    score = 0
+    while len(path) < len(self.cities):
+      city = path[-1]
+      universe = [i for i in self.cities if i not in path]
+      (nearestNeighbors, distance) = self.getClosestNeighbors(city, universe)
+      path.append(nearestNeighbors[0])
+      score = score + distance
+      if score > scoreToBeat:
+        return (path, float('Inf'))
+    return (path, score)
 
 def generateStringPath(path):
   # Convert path to string format.
@@ -102,6 +171,11 @@ def generateStringPath(path):
 def getRawMap(mapPath):
   with open(mapPath, 'r') as mapFile:
     rawMap = mapFile.read()
+
+  # If last character is a carriage line, remove it.
+  if rawMap[-1] == '\n':
+    rawMap = rawMap[0:-1]
+
   return rawMap
 
 if __name__ == '__main__':
@@ -109,18 +183,20 @@ if __name__ == '__main__':
   import time
   import tree
   start = time.clock()
-
   mapPath = str(sys.argv[1])
   rawMap = getRawMap(mapPath)
 
-  thisGraph = Graph(rawMap);
+  thisGraph = Graph(rawMap)
 
   # Calculate path based on Christophides Algorithm.
   thisTree = tree.Tree(thisGraph)
   path = thisTree.getChristophidesPath()
+  #path = thisGraph.randomSwap(path)
+  (nearestWalk, nearestWalkScore) = thisGraph.getBestNeighborWalk(1, 4)
 
   # Return score for path.
   score = thisGraph.getScore(path)
 
+  print("Neares walk score: " + str(nearestWalkScore))
   print("Score: " + str(score))
   print("Total Exectuion Time: " + str(time.clock() - start))
