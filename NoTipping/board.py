@@ -76,13 +76,17 @@ def setupBoardFromFile(fileName):
     weight = int(values[1])
     color = values[2:]
     thisBoard.addWeight(location, weight)
+    torque = thisBoard.getTorque()
 
     if thisBoard.checkIfTipped():
       # Maybe this should be an exception
-      print('The board has tipped adding weight: ' + str(weight) + ' at location: ' + str(location))
+      print('The board has tipped adding weight: ' + str(weight) + 
+            ' at location: ' + str(location) + ' with torque: ' + str(torque))
+    else:
+      print('Added weight: ' + str(weight) + ' at location: ' + str(location) + 
+            ' resulting in torque: ' + str(torque))
   return thisBoard
 
 if __name__ == '__main__':
   thisBoard = setupBoardFromFile('input')
   torque = thisBoard.getTorque()
-  print('Final Torque: ' + str(torque))
