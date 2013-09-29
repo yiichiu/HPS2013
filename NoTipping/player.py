@@ -17,9 +17,13 @@ class Player:
     if len(sortedMoves) > 0:
       bestMove = sortedMoves[0]
     else:
-      weight = self.__board.getRandomWeightToAdd()
-      location = self.__board.getRandomUnoccupiedLocation()
-      bestMove = (location, weight)
+      bestMove = self.playRandomAddStrategy()
+    return bestMove
+
+  def playRandomAddStrategy(self):
+    weight = self.__board.getRandomWeightToAdd()
+    location = self.__board.getRandomUnoccupiedLocation()
+    bestMove = (location, weight)
     return bestMove
 
   def playRemoveStrategy(self):
@@ -29,18 +33,22 @@ class Player:
     if remainingPlayerOneMoves == {0}:
       # This tells us to not remove player two's weights if we are player one, unless we are forced
       # to do so.
-      print(moves)
-      moves = self.__board.getPlayableRemoveMoves()
+      playerNumber = None
     else:
-      moves = self.__board.getPlayableRemoveMoves(self.playerNumber)
+      playerNumber = self.playerNumber
+    moves = self.__board.getPlayableRemoveMoves(playerNumber)
 
     sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
     if len(sortedMoves) > 0:
       bestMove = sortedMoves[0]
     else:
-      location = self.__board.getRandomOccupiedLocation()
-      weight = self.__board.getWeightAtLocation(location)
-      bestMove = (location, weight)
+      bestMove = self.playRandomRemoveStrategy(playerNumber)
+    return bestMove
+
+  def playRandomRemoveStrategy(self, playerNumber):
+    location = self.__board.getRandomOccupiedLocation(playerNumber)
+    weight = self.__board.getWeightAtLocation(location)
+    bestMove = (location, weight)
     return bestMove
 
 if __name__ == '__main__':
