@@ -15,11 +15,17 @@ class Board:
   __pivotRightDistanceMap = None
   playerOneWeights = None
   playerTwoWeights = None
+  playerOneMoves = None
+  playerTwoMoves = None
 
   def __init__(self):
     # Initial weights available to both players
     self.playerOneWeights = set(range(1,12+1))
     self.playerTwoWeights = set(range(1,12+1))
+
+    # Initialize player sub-boards
+    self.playerOneMoves = (0,)*(self.BOARD_LENGTH+1)
+    self.playerTwoMoves = (0,)*(self.BOARD_LENGTH+1)
 
     # Initialize board
     self.__board = (0,)*(self.BOARD_LENGTH+1)
@@ -37,8 +43,8 @@ class Board:
     clone = copy.deepcopy(self)
     return clone
 
-  def getRandomOccupiedLocation(self):
-    locations = list(self.getOccupiedLocations())
+  def getRandomOccupiedLocation(self, player = None):
+    locations = list(self.getOccupiedLocations(player))
     location = random.choice(locations)
     return location
 
@@ -57,8 +63,8 @@ class Board:
     weight = random.choice(weights)
     return weight
 
-  def getRandomWeightToRemove(self):
-    weights = [self.getWeightAtLocation(i) for i in self.getOccupiedLocations()]
+  def getRandomWeightToRemove(self, player = None):
+    weights = [self.getWeightAtLocation(i) for i in self.getOccupiedLocations(player)]
     weight = random.choice(weights)
     return weight
 
@@ -83,9 +89,10 @@ class Board:
           playableMoves.add(move)
     return playableMoves
 
-  def getPlayableRemoveMoves(self):
-    locations = self.getOccupiedLocations()
+  def getPlayableRemoveMoves(self, player = None):
+    locations = self.getOccupiedLocations(player)
 
+    # Player one cannot remove the weights player two added unless those are the only weights left.
     playableMoves = set()
     for location in locations:
       weight = self.getWeightAtLocation(location)
@@ -109,9 +116,15 @@ class Board:
                           if v == 0)
     return unoccupiedLocations
 
-  def getOccupiedLocations(self):
+  def getOccupiedLocations(self, player = None):
+    if player == None:
+      testBoard = self.__board
+    elif player == 1:
+      testBoard = self.playerOneMoves
+    elif player == 2:
+      testBoard = self.__board
     occupiedLocations = set(self.__getBoardLocationFromIndex(i)
-                          for i, v in enumerate(self.__board)
+                          for i, v in enumerate(testBoard)
                           if v != 0)
     return occupiedLocations
 
@@ -142,11 +155,13 @@ class Board:
         raise Exception("Player 1 does not have weight: " + str(weight) + " available")
       else:
         self.playerOneWeights.remove(weight)
+        self.playerOneMoves = self.__replaceBoardAtLocationWithValue(self.playerOneMoves, location, weight)
     elif player == 2:
       if weight not in self.playerTwoWeights:
         raise Exception("Player 2 does not have weight: " + str(weight) + " available")
       else:
         self.playerTwoWeights.remove(weight)
+        self.playerTwoMoves = self.__replaceBoardAtLocationWithValue(self.playerTwoMoves, location, weight)
     elif player == 0 and not (weight == 0 or weight == self.BOARD_WEIGHT):
       raise Exception("Invalid weight for player 0")
     elif player not in {0,1,2}:
@@ -161,6 +176,8 @@ class Board:
     index = self.__getIndexFromBoardLocation(location)
     if self.getWeightAtLocation(location) == weight:
       self.__board = self.__replaceBoardAtLocationWithValue(self.__board, location, 0)
+      self.playerOneMoves = self.__replaceBoardAtLocationWithValue(self.playerOneMoves, location, 0)
+      self.playerTwoMoves = self.__replaceBoardAtLocationWithValue(self.playerTwoMoves, location, 0)
     else:
       raise Exception("Weight at location: " + str(weightAtIndex) +
           " Tried to remove weight: " + str(weight))
@@ -226,6 +243,10 @@ def readMoves(fileName):
         print('Player: ' + str(player) + ' Removed weight: ' + str(weight) +
               ' at location: ' + str(location) + 
               ' resulting in torque: ' + str(torque))
+  value = data[-1].split()
+  playerOneTime = value[1]
+  playerTwoTime = value[2]
+  print('Player 1 Total Time: ' + str(playerOneTime) + ' Player 2 TotalTime: ' + str(playerTwoTime))
   return thisBoard
 
 def readBoard(fileName):

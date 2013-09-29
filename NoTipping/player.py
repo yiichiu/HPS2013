@@ -5,29 +5,41 @@ import operator
 class Player:
   BOARD_NAME = 'board.txt'
   __board = None
+  playerNumber = None
 
   def __init__(self, playerNumber, remainingTime):
     self.__board = board.readBoard(self.BOARD_NAME)
+    self.playerNumber = playerNumber
 
   def playAddStrategy(self):
-    moves = self.__board.getPlayableAddMoves(playerNumber)
+    moves = self.__board.getPlayableAddMoves(self.playerNumber)
     sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
     if len(sortedMoves) > 0:
       bestMove = sortedMoves[0]
     else:
-      weight = self.__board.getRandomWeight()
-      location = self.__board.getRandomLocation()
+      weight = self.__board.getRandomWeightToAdd()
+      location = self.__board.getRandomUnoccupiedLocation()
       bestMove = (location, weight)
     return bestMove
 
   def playRemoveStrategy(self):
-    moves = self.__board.getPlayableRemoveMoves()
+    remainingPlayerOneMoves = set(self.__board.playerOneMoves)
+    # This tells us to not remove player two's weights if we are player one, unless we are forced
+    # to do so.
+    if remainingPlayerOneMoves == {0}:
+      # This tells us to not remove player two's weights if we are player one, unless we are forced
+      # to do so.
+      print(moves)
+      moves = self.__board.getPlayableRemoveMoves()
+    else:
+      moves = self.__board.getPlayableRemoveMoves(self.playerNumber)
+
     sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
     if len(sortedMoves) > 0:
       bestMove = sortedMoves[0]
     else:
-      weight = self.__board.getRandomWeight()
-      location = self.__board.getRandomLocation()
+      location = self.__board.getRandomOccupiedLocation()
+      weight = self.__board.getWeightAtLocation(location)
       bestMove = (location, weight)
     return bestMove
 
