@@ -155,12 +155,12 @@ class Board:
     index = self.__getIndexFromBoardLocation(location)
     if self.getWeightAtLocation(location) != 0:
       raise Exception("Location is already occupied")
-    self.__board = self.__board[0:index] + (weight,) + self.__board[index + 1:]
+    self.__board = self.__replaceBoardAtLocationWithValue(self.__board, location, weight)
 
   def removeWeight(self, location, weight):
     index = self.__getIndexFromBoardLocation(location)
     if self.getWeightAtLocation(location) == weight:
-      self.__board = self.__board[0:index] + (0,) + self.__board[index + 1:]
+      self.__board = self.__replaceBoardAtLocationWithValue(self.__board, location, 0)
     else:
       raise Exception("Weight at location: " + str(weightAtIndex) +
           " Tried to remove weight: " + str(weight))
@@ -177,6 +177,11 @@ class Board:
     index = self.__getIndexFromBoardLocation(location)
     distanceMap = tuple(range(0-index, (self.BOARD_LENGTH+1)-index))
     return distanceMap
+
+  def __replaceBoardAtLocationWithValue(self, inputBoard, location, value):
+    index = self.__getIndexFromBoardLocation(location)
+    outputBoard = inputBoard[0:index] + (value,) + inputBoard[index + 1:]
+    return outputBoard
 
 def readMoves(fileName):
   thisBoard = Board()
