@@ -5,6 +5,7 @@ class Board:
   BOARD_LENGTH = 30
   BOARD_WEIGHT = 3
   INITIAL_WEIGHTLOCATION = -4
+  MAX_WEIGHT = 12
   PIVOT_LEFT_LOCATION = -3
   PIVOT_RIGHT_LOCATION = -1
   __board = None
@@ -17,8 +18,8 @@ class Board:
 
   def __init__(self):
     # Initial weights available to both players
-    self.playerOneWeights = set(range(1,12+1))
-    self.playerTwoWeights = set(range(1,12+1))
+    self.playerOneWeights = set(range(1,self.MAX_WEIGHT+1))
+    self.playerTwoWeights = set(range(1,self.MAX_WEIGHT+1))
 
     # Initialize player sub-boards
     self.playerOneMoves = (0,)*(self.BOARD_LENGTH+1)
@@ -178,9 +179,6 @@ class Board:
 
     index = self.__getIndexFromBoardLocation(location)
     if self.getWeightAtLocation(location) != 0:
-      print(weight)
-      print(location)
-      input('')
       raise Exception("Location is already occupied")
     self.__board = self.__replaceBoardAtLocationWithValue(self.__board, location, weight)
 
@@ -193,6 +191,20 @@ class Board:
     else:
       raise Exception("Weight at location: " + str(weightAtIndex) +
           " Tried to remove weight: " + str(weight))
+
+  def undoAdd(self, location, weight, playerNumber):
+    self.removeWeight(location, weight)
+    if playerNumber == 1:
+      self.playerOneWeights.add(weight)
+    else:
+      self.playerTwoWeights.add(weight)
+
+  def undoRemove(self, location, weight, playerNumber):
+    if playerNumber == 1:
+      self.playerOneWeights.add(weight)
+    else:
+      self.playerTwoWeights.add(weight)
+    self.addWeight(location, weight, playerNumber)
 
   def __getIndexFromBoardLocation(self, location):
     index = int(location + self.BOARD_LENGTH/2)
