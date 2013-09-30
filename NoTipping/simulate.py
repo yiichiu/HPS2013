@@ -3,6 +3,7 @@ import player
 
 class Simulate:
   BOARD_OUTPUT = 'board.txt'
+  CLEAN_UP_OUTPUT = False
   __board = None
   __isFirstMove = None
   __enteredRemovalStage = None
@@ -48,14 +49,14 @@ class Simulate:
     # Delete the correct amount of lines
     CURSOR_UP_ONE = '\x1b[1A'
     ERASE_LINE = '\x1b[2k'
-    if self.__isFirstMove:
+    if self.__isFirstMove and self.CLEAN_UP_OUTPUT:
       self.__isFirstMove = False
-    elif self.__enteredRemovalStage:
+    elif self.__enteredRemovalStage and self.CLEAN_UP_OUTPUT:
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
-    else:
+    elif self.CLEAN_UP_OUTPUT:
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)

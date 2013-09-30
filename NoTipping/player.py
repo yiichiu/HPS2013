@@ -11,23 +11,39 @@ class Player:
     self.__board = board.readBoard(self.BOARD_NAME)
     self.playerNumber = playerNumber
 
-  def playAddStrategy(self):
+  def playGreedyAddStrategy(self):
     moves = self.__board.getPlayableAddMoves(self.playerNumber)
     sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
 
     if len(sortedMoves) > 0:
-      bestMove = sortedMoves[0]
+      bestMove = self.balancePlayerOneTorque(sortedMoves)
     else:
       bestMove = self.playRandomAddStrategy()
     return bestMove
 
+  def balancePlayerOneTorque(self, sortedMoves):
+    (playerOneTorque1, playerOneTorque2) = self.__board.getTorque(self.__board.playerOneMoves)
+    if self.playerNumber == 1:
+      # We want to balance the weights that player one placed as much as possible.
+      if abs(playerOneTorque1) > abs(playerOneTorque2):
+        bestMove = sortedMoves[-1]
+      else:
+        bestMove = sortedMoves[0]
+    else:
+      # Otherwise we want to unbalance the weights that player one placed as much as possible.
+      if abs(playerOneTorque1) > abs(playerOneTorque2):
+        bestMove = sortedMoves[0]
+      else:
+        bestMove = sortedMoves[-1]
+    return bestMove
+
   def playRandomAddStrategy(self):
-    weight = self.__board.getRandomWeightToAdd()
+    weight = self.__board.getRandomWeightToAdd(self.playerNumber)
     location = self.__board.getRandomUnoccupiedLocation()
     bestMove = (location, weight)
     return bestMove
 
-  def playRemoveStrategy(self):
+  def playGreedyRemoveStrategy(self):
     remainingPlayerOneMoves = set(self.__board.playerOneMoves)
     # This tells us to not remove player two's weights if we are player one, unless we are forced
     # to do so.
@@ -54,9 +70,9 @@ class Player:
 
   def play(self, mode):
     if mode == 1:
-      (location, weight) = self.playAddStrategy()
+      (location, weight) = self.playGreedyAddStrategy()
     elif mode == 2:
-      (location, weight) = self.playRemoveStrategy()
+      (location, weight) = self.playGreedyRemoveStrategy()
     else:
       raise Exception("Invalid Mode")
     return (location, weight)

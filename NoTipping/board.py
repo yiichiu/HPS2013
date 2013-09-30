@@ -56,7 +56,7 @@ class Board:
     if player == 1:
       weights = list(self.playerOneWeights)
     elif player == 2:
-      weights = list(self.playerOneWeights)
+      weights = list(self.playerTwoWeights)
     else:
       raise Exception('Invalid player number')
     weight = random.choice(weights)
@@ -131,13 +131,17 @@ class Board:
     (torqueLeftPivot, torqueRightPivot) = self.getTorque()
     return True if torqueLeftPivot < 0 or torqueRightPivot > 0 else False
 
-  def getTorque(self):
-    torqueLeftPivot = self.__getTorque(self.__pivotLeftDistanceMap)
-    torqueRightPivot = self.__getTorque(self.__pivotRightDistanceMap)
+  def getTorque(self, thisBoard = None):
+    if thisBoard == None:
+      thisBoard = self.__board
+    torqueLeftPivot = self.__getTorque(self.__pivotLeftDistanceMap, thisBoard)
+    torqueRightPivot = self.__getTorque(self.__pivotRightDistanceMap, thisBoard)
     return (torqueLeftPivot, torqueRightPivot)
 
-  def __getTorque(self, distanceMap):
-    torque = tuple(distanceMap[i] * self.__board[i] for i in range(0, self.BOARD_LENGTH+1))
+  def __getTorque(self, distanceMap, thisBoard = None):
+    if thisBoard == None:
+      thisBoard = self.__board
+    torque = tuple(distanceMap[i] * thisBoard[i] for i in range(0, self.BOARD_LENGTH+1))
 
     centerOfDistanceForce = distanceMap[self.__getIndexFromBoardLocation(0)] * self.BOARD_WEIGHT 
     torque = sum(torque) + centerOfDistanceForce
