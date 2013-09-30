@@ -168,6 +168,9 @@ class Board:
 
     index = self.__getIndexFromBoardLocation(location)
     if self.getWeightAtLocation(location) != 0:
+      print(weight)
+      print(location)
+      input('')
       raise Exception("Location is already occupied")
     self.__board = self.__replaceBoardAtLocationWithValue(self.__board, location, weight)
 

@@ -13,9 +13,8 @@ class Player:
 
   def playAddStrategy(self):
     moves = self.__board.getPlayableAddMoves(self.playerNumber)
-    playerMoves = self.__board.playerOneMoves
-
     sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
+
     if len(sortedMoves) > 0:
       bestMove = sortedMoves[0]
     else:

@@ -5,19 +5,21 @@ class Simulate:
   BOARD_OUTPUT = 'board.txt'
   __board = None
   __isFirstMove = None
+  __enteredRemovalStage = None
   currentPlayer = None
   currentMode = None
 
   def __init__(self):
     self.__board = board.Board()
     self.__isFirstMove = True
+    self.__enteredRemovalStage = False
     self.drawBoard()
     self.currentPlayer = 1
     self.currentMode = 1
 
   def drawBoard(self):
     boardEnd = int(self.__board.BOARD_LENGTH/2)
-    locations = tuple(range(0-boardEnd, boardEnd))
+    locations = tuple(range(0-boardEnd, boardEnd + 1))
     playerOneMoves = self.__board.playerOneMoves
     playerTwoMoves = self.__board.playerTwoMoves
     with open(self.BOARD_OUTPUT, 'w') as file_:
@@ -43,12 +45,17 @@ class Simulate:
     else:
       raise(Exception('Invalid mode'))
 
-    # Delete last two lines of text
+    # Delete the correct amount of lines
+    CURSOR_UP_ONE = '\x1b[1A'
+    ERASE_LINE = '\x1b[2k'
     if self.__isFirstMove:
       self.__isFirstMove = False
+    elif self.__enteredRemovalStage:
+      print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
+      print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
+      print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
+      print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
     else:
-      CURSOR_UP_ONE = '\x1b[1A'
-      ERASE_LINE = '\x1b[2k'
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
       print(CURSOR_UP_ONE + ERASE_LINE + CURSOR_UP_ONE)
@@ -60,34 +67,47 @@ class Simulate:
       if self.__board.checkIfTipped():
         print('The board has tipped adding weight: ' + str(weight) + 
               ' at location: ' + str(location) + ' resulting in torque: ' + str(torque))
-        print('Player ' + currentPlayer + ' lost!')
+        print('Player ' + currentPlayer + ' lost!' +
+              '                                   ')
+        self.drawBoard()
+        return
       else:
         print('Player: ' + currentPlayer + ' Added weight: ' + str(weight) +
               ' at location: ' + str(location) + 
-              ' resulting in torque: ' + str(torque))
+              ' resulting in torque: ' + str(torque) + '                                          ')
     else:
       if self.__board.checkIfTipped():
        print('The board has tipped removing weight: ' + str(weight) + 
              ' at location: ' + str(location) + ' resulting in torque: ' + str(torque))
-       print('Player ' + currentPlayer + ' lost!')
+       print('Player ' + currentPlayer + ' lost!' + 
+             '                                  ')
+       self.drawBoard()
+       return
       else:
         print('Player: ' + currentPlayer + ' Removed weight: ' + str(weight) +
               ' at location: ' + str(location) + 
-              ' resulting in torque: ' + str(torque))
+              ' resulting in torque: ' + str(torque) + '                                          ')
 
     # Display some information to help decide how to play
     self.__board.printBoard()
-    if self.currentPlayer == 1:
-      opposingPlayer = '2'
-      remainingWeights = self.__board.playerTwoWeights
+    if mode == 1:
+      if self.currentPlayer == 1:
+        opposingPlayer = '2'
+        remainingWeights = self.__board.playerTwoWeights
+      else:
+        opposingPlayer = '1'
+        remainingWeights = self.__board.playerOneWeights
+      print('Player ' + opposingPlayer + ' has weights: ' + str(remainingWeights) +
+            '                                                          ')
     else:
-      opposingPlayer = '1'
-      remainingWeights = self.__board.playerOneWeights
-    print('Player ' + opposingPlayer + ' has weights: ' + str(remainingWeights))
+      print('Weights placed by player 1 remaining: ' + 
+            '                                                          ')
+      print(str(self.__board.playerOneMoves))
 
     # Update mode to remove if there are no more weights for player one
     if self.currentMode == 1 and self.__board.playerOneWeights == set():
       print('Entering Removal Stage')
+      self.__enteredRemovalStage = True
       self.currentMode = 2
 
     # Mark the proper player
