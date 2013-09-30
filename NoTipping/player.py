@@ -57,11 +57,20 @@ class Player:
       playerNumber = None
     else:
       playerNumber = self.playerNumber
+
+    # Moves are (location, weight, torque1, torque2)
     moves = self.__board.getPlayableRemoveMoves(playerNumber)
 
-    sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
+    # Sort the torques so that (torque1, torque2) torque1 goes from highest to lowest. This means of
+    # course that torque2 will go fomr lowest to highest.
+    sortedMoves = sorted(moves, key = operator.itemgetter(2), reverse = True)
+
+    # Remove the torques
+    sortedMoves = [(x,y) for (x,y,a,b) in sortedMoves]
+
     if len(sortedMoves) > 0:
-      bestMove = sortedMoves[0]
+      #bestMove = sortedMoves[0]
+      bestMove = self.balancePlayerOneTorque(sortedMoves)
     else:
       bestMove = self.playRandomRemoveStrategy(playerNumber)
     return bestMove
