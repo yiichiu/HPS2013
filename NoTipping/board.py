@@ -85,7 +85,10 @@ class Board:
 
         move = (location, weight)
         if not testBoard.checkIfTipped():
-          playableMoves.add(move)
+          # Playable moves are (location, weight, torque1, torque2)
+          torque = testBoard.getTorque()
+          thisMove = move + torque
+          playableMoves.add(thisMove)
     return playableMoves
 
   def getPlayableRemoveMoves(self, player = None):

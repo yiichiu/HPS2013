@@ -3,7 +3,7 @@ import player
 
 class Simulate:
   BOARD_OUTPUT = 'board.txt'
-  CLEAN_UP_OUTPUT = False
+  CLEAN_UP_OUTPUT = True
   __board = None
   __isFirstMove = None
   __enteredRemovalStage = None

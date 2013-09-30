@@ -12,8 +12,15 @@ class Player:
     self.playerNumber = playerNumber
 
   def playGreedyAddStrategy(self):
+    # Moves are (location, weight, torque1, torque2)
     moves = self.__board.getPlayableAddMoves(self.playerNumber)
-    sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
+
+    # Sort the torques so that (torque1, torque2) torque1 goes from highest to lowest. This means of
+    # course that torque2 will go fomr lowest to highest.
+    sortedMoves = sorted(moves, key = operator.itemgetter(2), reverse = True)
+
+    # Remove the torques
+    sortedMoves = [(x,y) for (x,y,a,b) in sortedMoves]
 
     if len(sortedMoves) > 0:
       bestMove = self.balancePlayerOneTorque(sortedMoves)
@@ -31,10 +38,7 @@ class Player:
         bestMove = sortedMoves[0]
     else:
       # Otherwise we want to unbalance the weights that player one placed as much as possible.
-      if abs(playerOneTorque1) > abs(playerOneTorque2):
-        bestMove = sortedMoves[0]
-      else:
-        bestMove = sortedMoves[-1]
+      bestMove = sortedMoves[0]
     return bestMove
 
   def playRandomAddStrategy(self):
