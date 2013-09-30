@@ -13,6 +13,8 @@ class Player:
 
   def playAddStrategy(self):
     moves = self.__board.getPlayableAddMoves(self.playerNumber)
+    playerMoves = self.__board.playerOneMoves
+
     sortedMoves = sorted(moves, key = operator.itemgetter(1,0), reverse = True)
     if len(sortedMoves) > 0:
       bestMove = sortedMoves[0]
@@ -51,6 +53,15 @@ class Player:
     bestMove = (location, weight)
     return bestMove
 
+  def play(self, mode):
+    if mode == 1:
+      (location, weight) = self.playAddStrategy()
+    elif mode == 2:
+      (location, weight) = self.playRemoveStrategy()
+    else:
+      raise Exception("Invalid Mode")
+    return (location, weight)
+
 if __name__ == '__main__':
   if len(sys.argv) < 4:
     remainingTime = float('Inf')
@@ -59,10 +70,7 @@ if __name__ == '__main__':
 
   mode = int(sys.argv[1])
   playerNumber = int(sys.argv[2])
-  if mode == 1:
-    (location, weight) = Player(playerNumber, remainingTime).playAddStrategy()
-  elif mode == 2:
-    (location, weight) = Player(playerNumber, remainingTime).playRemoveStrategy()
-  else:
-    raise Exception("Invalid Mode")
+
+  thisPlayer = Player(playerNumber, remainingTime)
+  (location, weight) = thisPlayer.play(mode)
   print(str(location) + ' ' + str(weight))

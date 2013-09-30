@@ -8,9 +8,6 @@ class Board:
   PIVOT_LEFT_LOCATION = -3
   PIVOT_RIGHT_LOCATION = -1
   __board = None
-  __pivotLocations = None
-  __remainingWeights = None
-  __pivotLocations = None
   __pivotLeftDistanceMap = None
   __pivotRightDistanceMap = None
   playerOneWeights = None
@@ -29,7 +26,6 @@ class Board:
 
     # Initialize board
     self.__board = (0,)*(self.BOARD_LENGTH+1)
-    self.__pivotLocations = (self.PIVOT_LEFT_LOCATION, self.PIVOT_LEFT_LOCATION)
     self.addWeight(self.INITIAL_WEIGHTLOCATION, self.BOARD_WEIGHT, 0)
 
     # Setup values for evaluating torque
@@ -42,6 +38,9 @@ class Board:
   def __clone__(self):
     clone = copy.deepcopy(self)
     return clone
+
+  def printBoard(self):
+    print(self.__board)
 
   def getRandomOccupiedLocation(self, player = None):
     locations = list(self.getOccupiedLocations(player))
