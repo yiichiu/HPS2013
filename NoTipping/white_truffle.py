@@ -1,5 +1,6 @@
 import copy
 import random
+import operator
 
 class Player:
   playerNumber = None
@@ -43,7 +44,7 @@ class Player:
     (playerOneTorqueLeft, playerOneTorqueRight) = self.playerOneBoard.getTorque()
     if self.playerNumber == 1:
       # We want to balance the weights that player one placed as much as possible.
-      if abs(playerOneToqureLeft) > abs(playerOneToqureRight):
+      if abs(playerOneTorqueLeft) > abs(playerOneTorqueRight):
         bestMove = sortedMoves[-1]
       else:
         bestMove = sortedMoves[0]
