@@ -185,12 +185,13 @@ class Board:
 
   def removeWeight(self, location, weight):
     index = self.__getIndexFromBoardLocation(location)
-    if self.getWeightAtLocation(location) == weight:
+    weightAtLocation = self.getWeightAtLocation(location) 
+    if weightAtLocation == weight:
       self.__board = self.__replaceBoardAtLocationWithValue(self.__board, location, 0)
       self.playerOneMoves = self.__replaceBoardAtLocationWithValue(self.playerOneMoves, location, 0)
       self.playerTwoMoves = self.__replaceBoardAtLocationWithValue(self.playerTwoMoves, location, 0)
     else:
-      raise Exception("Weight at location: " + str(weightAtIndex) +
+      raise Exception("Location: " + str( location) + " Weight at location: " + str(weightAtLocation) +
           " Tried to remove weight: " + str(weight))
 
   def undoAdd(self, location, weight, playerNumber):

@@ -4,6 +4,7 @@ import operator
 
 class Strategies:
   __boardStorage = None
+  MAX_DEPTH = 2
   initialPlayer = None
   currentPlayer = None
   undoRemove = None
@@ -19,9 +20,8 @@ class Strategies:
       self.depth = 0
     else:
       self.depth = self.depth + 1
-    print(self.depth)
 
-    if self.isLeaf(thisBoard) or self.depth == 5:
+    if self.isLeaf(thisBoard) or self.depth == self.MAX_DEPTH:
       return self.estimateScore(thisBoard)
 
     alpha = A
@@ -41,9 +41,10 @@ class Strategies:
         self.undoMove(thisBoard, playableMove)
         self.depth = self.depth - 1
 
-        if alpha >= beta:
-          return beta
-        return alpha
+        return self.getMaxPlayableMove(alpha, beta)
+        #if alpha >= beta:
+        #  return beta
+        #return alpha
 
     else:
       for playableMove in playableMoves:
@@ -51,24 +52,27 @@ class Strategies:
         self.playMove(thisBoard, playableMove)
 
         # Alpha Beta Pruning
-        beta = min(beta, self.alphaBeta(thisBoard, alpha, beta))
+        beta = self.getMaxPlayableMove(beta, self.alphaBeta(thisBoard, alpha, beta))
 
         # Undo Move
         self.undoMove(thisBoard, playableMove)
         self.depth = self.depth - 1
 
-        if alpha >= beta:
-          return alpha
-        return beta
+        return self.getMaxPlayableMove(alpha, beta)
 
   def getMaxPlayableMove(self, set1, set2):
     inf = float('Inf')
+    infSet = (inf, inf, inf, inf)
     if set1 == set() and set2 == set():
-      return (inf, inf, inf, inf)
-    print(set1)
-    print(set2)
-
-    input('')
+      return infSet
+    if set1 == infSet:
+      return set2
+    elif set2 == infSet:
+      return set1
+    elif set1[2] > set2[2]:
+      return set1
+    else:
+      return set2
 
   def playMove(self, thisBoard, playableMove):
     location = playableMove[0] 
@@ -147,19 +151,18 @@ class Strategies:
       # Otherwise we want to unbalance the weights that player one placed as much as possible.
       bestMove = sortedMoves[0]
     return bestMove
-    print(sortedMoves)
-    input('')
 
 def runAlphaBeta(thisBoard, playerNumber):
   inf = float('Inf')
-  infSet1 = (inf, inf, inf, -inf)
-  infSet2 = (inf, inf, -inf, inf)
+  infSet1 = (inf, inf, inf, inf)
+  infSet2 = (inf, inf, inf, inf)
   testStrategies = Strategies(playerNumber)
-  return testStrategies.alphaBeta(thisBoard, infSet1, infSet2)
+  score =  testStrategies.alphaBeta(thisBoard, infSet1, infSet2)
+  output = (score[0], score[1])
+  return output
 
 if __name__ == '__main__':
-  startTime = time.clock()
-  thisBoard = board.readBoard('testBoard')
+  thisBoard = board.readBoard('board.txt')
 
-  runAlphaBeta(thisBoard, 1)
-  print(time.clock() - startTime)
+  output = runAlphaBeta(thisBoard, 1)
+  print(output)

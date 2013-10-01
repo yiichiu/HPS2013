@@ -106,7 +106,7 @@ class Simulate:
       print(str(self.__board.playerOneMoves))
 
     # Update mode to remove if there are no more weights for player one
-    if self.currentMode == 1 and self.__board.playerOneWeights == set() and self.__board.playerTwoWeights == set():
+    if self.currentMode == 1 and ard.playerOneWeights == set() and self.__board.playerTwoWeights == set():
       print('Entering Removal Stage')
       self.__enteredRemovalStage = True
       self.currentMode = 2
