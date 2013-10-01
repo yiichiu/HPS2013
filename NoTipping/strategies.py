@@ -1,64 +1,165 @@
 import board
 import time
+import operator
 
 class Strategies:
   __boardStorage = None
   initialPlayer = None
+  currentPlayer = None
+  undoRemove = None
+  depth = None
 
   def __init__(self, playerNumber):
     self.initialPlayer = playerNumber
+    self.currentPlayer = playerNumber
     self.__boardStorage = None
 
-  def minimax(self, playerNumber, thisBoard, depth):
-    score = 0
+  def alphaBeta(self, thisBoard, A, B):
+    if self.depth == None:
+      self.depth = 0
+    else:
+      self.depth = self.depth + 1
+    print(self.depth)
+
+    if self.isLeaf(thisBoard) or self.depth == 5:
+      return self.estimateScore(thisBoard)
+
+    alpha = A
+    beta = B
+
+    playableMoves = self.getPlayableMoves(thisBoard)
+
+    if self.isMaxNode():
+      for playableMove in playableMoves:
+        # Configure thisBoard so that it looks like the successor
+        self.playMove(thisBoard, playableMove)
+        
+        # Alpha Beta Pruning
+        alpha = self.getMaxPlayableMove(alpha, self.alphaBeta(thisBoard, alpha, beta))
+
+        # Undo Move
+        self.undoMove(thisBoard, playableMove)
+        self.depth = self.depth - 1
+
+        if alpha >= beta:
+          return beta
+        return alpha
+
+    else:
+      for playableMove in playableMoves:
+        # Configure thisBoard so that it looks like the successor
+        self.playMove(thisBoard, playableMove)
+
+        # Alpha Beta Pruning
+        beta = min(beta, self.alphaBeta(thisBoard, alpha, beta))
+
+        # Undo Move
+        self.undoMove(thisBoard, playableMove)
+        self.depth = self.depth - 1
+
+        if alpha >= beta:
+          return alpha
+        return beta
+
+  def getMaxPlayableMove(self, set1, set2):
+    inf = float('Inf')
+    if set1 == set() and set2 == set():
+      return (inf, inf, inf, inf)
+    print(set1)
+    print(set2)
+
+    input('')
+
+  def playMove(self, thisBoard, playableMove):
+    location = playableMove[0] 
+    weight = playableMove[1] 
+
+    # Advance the board
     if thisBoard.playerTwoWeights == set():
-      playableMoves = thisBoard.getPlayableRemoveMoves()
+      # We should be removing
+      thisBoard.removeWeight(location, weight)
+      self.undoRemove = True
     else:
-      playableMoves = thisBoard.getPlayableAddMoves(playerNumber)
+      thisBoard.addWeight(location, weight, self.currentPlayer)
+      self.undoRemove = False
 
-    if playerNumber == 1:
-      opponentNumber = 2
+    # Shift the player to the opponent
+    self.currentPlayer = self.getOpponent()
+
+  def undoMove(self, thisBoard, playableMove):
+    location = playableMove[0] 
+    weight = playableMove[1] 
+
+    # Shift the player back
+    self.currentPlayer = self.getOpponent()
+    if len([i for i in thisBoard.playerOneMoves if i != 0]) == thisBoard.MAX_WEIGHT:
+      self.undoRemove = False
+
+    # undo the board
+    if self.undoRemove:
+      # We should be undoing a remove
+      thisBoard.undoRemove(location, weight, self.currentPlayer)
     else:
-      opponentNumber = 1
+      thisBoard.undoAdd(location, weight, self.currentPlayer)
 
-    if playerNumber == self.initialPlayer and len(playableMoves) == 0:
-      score = -1
-    elif len(playableMoves) == 0:
-      score = 1
-    elif depth == 1:
-      score = 0
+  def getOpponent(self):
+    if self.currentPlayer == 1:
+      return 2
+    else:
+      return 1
 
-    for move in playableMoves:
-      location = move[0]
-      weight = move[1]
-      #print('Location: ' + str(location) + ' Weight: ' + str(weight) + ' Player: ' + str(playerNumber))
+  def isMaxNode(self):
+    if self.currentPlayer == self.initialPlayer:
+      return True
+    else:
+      return False
 
-      if thisBoard.playerTwoWeights == set():
-        thisBoard.removeWeight(location, weight)
+  def isLeaf(self, thisBoard):
+    if len(self.getPlayableMoves(thisBoard)) == 0:
+      return True
+    else:
+      return False
+
+  def getPlayableMoves(self, thisBoard):
+    if thisBoard.playerTwoWeights == set():
+      return thisBoard.getPlayableRemoveMoves()
+    else:
+      return thisBoard.getPlayableAddMoves(self.currentPlayer)
+
+  def estimateScore(self, thisBoard):
+    playableMoves = thisBoard.getPlayableRemoveMoves()
+
+    # Sort the torques so that (torque1, torque2) torque1 goes from highest to lowest. This means of
+    # course that torque2 will go fomr lowest to highest.
+    sortedMoves = sorted(playableMoves, key = operator.itemgetter(2), reverse = True)
+
+    if len(sortedMoves) == 0:
+      return worst
+
+    (playerOneTorque1, playerOneTorque2) = thisBoard.getTorque(thisBoard.playerOneMoves)
+    if self.currentPlayer == 1:
+      # We want to balance the weights that player one placed as much as possible.
+      if abs(playerOneTorque1) > abs(playerOneTorque2):
+        bestMove = sortedMoves[-1]
       else:
-        thisBoard.addWeight(location, weight, playerNumber)
-      #thisBoard.printBoard()
+        bestMove = sortedMoves[0]
+    else:
+      # Otherwise we want to unbalance the weights that player one placed as much as possible.
+      bestMove = sortedMoves[0]
+    return bestMove
+    print(sortedMoves)
+    input('')
 
-      #if depth == 1:
-      #  score = 0
-      #elif playerNumber == self.initialPlayer and len(playableMoves) == 0:
-      #  score = -1
-      #elif len(playableMoves) == 0:
-      #  score = 1
-      #else:
-      score = score + self.minimax(opponentNumber, thisBoard, depth - 1)
-
-      if thisBoard.playerTwoWeights == set():
-        thisBoard.undoRemove(location, weight, playerNumber)
-      else:
-        thisBoard.undoAdd(location, weight, playerNumber)
-    print(score)
-    return score
+def runAlphaBeta(thisBoard, playerNumber):
+  inf = float('Inf')
+  infSet1 = (inf, inf, inf, -inf)
+  infSet2 = (inf, inf, -inf, inf)
+  testStrategies = Strategies(playerNumber)
+  return testStrategies.alphaBeta(thisBoard, infSet1, infSet2)
 
 if __name__ == '__main__':
   startTime = time.clock()
   thisBoard = board.readBoard('testBoard')
 
-  testStrategies = Strategies(1)
-  score = testStrategies.minimax(1, thisBoard, 4)
+  runAlphaBeta(thisBoard, 1)
   print(time.clock() - startTime)
