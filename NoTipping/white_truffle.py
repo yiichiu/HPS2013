@@ -26,7 +26,7 @@ class Player:
     if len(moves) == 0:
       move = self.playRandomAddMove()
     else:
-      move = moves.pop()
+      move = self.playBalancePlayerOneMove(moves)
     return move
 
   def playRemoveMove(self):
@@ -34,8 +34,23 @@ class Player:
     if len(moves) == 0:
       move = self.playRandomRemoveMove()
     else:
-      move = moves.pop()
+      move = self.playBalancePlayerOneMove(moves)
     return move
+
+  def playBalancePlayerOneMove(self, moves):
+    # The moves are sorted by the left torque
+    sortedMoves = sorted(moves, key = operator.itemgetter(2), reverse = True)
+    (playerOneTorqueLeft, playerOneTorqueRight) = self.playerOneBoard.getTorque()
+    if self.playerNumber == 1:
+      # We want to balance the weights that player one placed as much as possible.
+      if abs(playerOneToqureLeft) > abs(playerOneToqureRight):
+        bestMove = sortedMoves[-1]
+      else:
+        bestMove = sortedMoves[0]
+    else:
+      # Otherwise we want to unbalance the weights that player one placed as much as possible.
+      bestMove = sortedMoves[0]
+    return bestMove
 
   def getPlayableAddMoves(self):
     if self.playerNumber == 1:
