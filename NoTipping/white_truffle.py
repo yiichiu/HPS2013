@@ -1,4 +1,5 @@
 import copy
+import random
 
 class Player:
   playerNumber = None
@@ -22,7 +23,18 @@ class Player:
 
   def playAddMove(self):
     moves = self.getPlayableAddMoves()
-    move = moves.pop()
+    if len(moves) == 0:
+      move = self.playRandomAddMove()
+    else:
+      move = moves.pop()
+    return move
+
+  def playRemoveMove(self):
+    moves = self.getPlayableRemoveMoves()
+    if len(moves) == 0:
+      move = self.playRandomRemoveMove()
+    else:
+      move = moves.pop()
     return move
 
   def getPlayableAddMoves(self):
@@ -46,11 +58,6 @@ class Player:
           thisMove = move + torque
           playableMoves.add(thisMove)
     return playableMoves
-
-  def playRemoveMove(self):
-    moves = self.getPlayableRemoveMoves()
-    move = moves.pop()
-    return move
 
   def getPlayableRemoveMoves(self):
     # Player one cannot remove the weights player two added unless those are the only weights left.
@@ -76,6 +83,43 @@ class Player:
         thisMove = move + torque
         playableMoves.add(thisMove)
     return playableMoves
+
+  def playRandomAddMove(self):
+    # We only reach this place if we know we will lose, so implement to choose anything.
+    if self.playerNumber == 1:
+      weights = self.playerOneWeights
+    elif self.playerNumber == 2:
+      weights = self.playerTwoWeights
+
+    locations = self.board.getUnoccupiedLocations()
+    location = random.choice(tuple(locations))
+    weight = random.choice(tuple(weights))
+
+    testBoard = board.__clone__()
+    testBoard.addWeight(location, weight)
+    torque = testBoard.getTorque()
+    move = (location, weight) + torque
+    return move
+
+  def playRandomRemoveMove(self):
+    # We only reach this place if we know we will lose, so implement to choose anything.
+    # Player one cannot remove the weights player two added unless those are the only weights left.
+    locations = set()
+    if self.playerNumber == 1:
+      locations = self.playerOneBoard.getOccupiedLocations()
+      board = self.playerOneBoard
+    if locations == set():
+      locations = self.board.getOccupiedLocations()
+      board = self.board
+
+    location = random.choice(tuple(locations))
+    weight = board.getWeightAtLocation(location)
+
+    testBoard = board.__clone__()
+    testBoard.removeWeight(location, weight)
+    torque = testBoard.getTorque()
+    move = (location, weight) + torque
+    return move
 
 class Board:
   BOARD_LENGTH = 30
