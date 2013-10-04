@@ -1,2 +1,4 @@
-*.pyc
-*.swp
+Debug
+*.obj
+*.suo
+*.filters
