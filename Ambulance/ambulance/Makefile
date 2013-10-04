@@ -1,0 +1,1 @@
+g++ Person.cpp Persons.cpp Ambulances.cpp Hospital.cpp Hospitals.cpp ClusteringAlgorithm.cpp SimpleAlgorithm.cpp ambulances.cpp -o ambulance

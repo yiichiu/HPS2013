@@ -80,6 +80,7 @@
   <ItemGroup>
     <ClCompile Include="ambulance.cpp" />
     <ClCompile Include="Ambulances.cpp" />
+    <ClCompile Include="ClusteringAlgorithm.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Hospital.cpp" />
     <ClCompile Include="Hospitals.cpp" />
@@ -89,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ambulances.h" />
+    <ClInclude Include="ClusteringAlgorithm.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Hospital.h" />
     <ClInclude Include="Hospitals.h" />

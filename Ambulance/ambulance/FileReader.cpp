@@ -1,6 +1,6 @@
 #include "FileReader.h"
 #include <fstream>
-#include <string>
+#include <string.h>
 #include <vector>
 
 FileReader::FileReader(void)

@@ -16,6 +16,11 @@ public:
 		return _persons.size();
 	}
 
+	// TODO: either return a pointer or a reference
+	Person getPerson(int i) const {
+		return _persons[i];
+	}
+
 private:
 	std::vector<Person> _persons;
 };

@@ -17,7 +17,13 @@ public:
 		return _hospitals.size();
 	}
 
-	void placeHospitals();
+	Hospital getHospital(int i) const {
+		return _hospitals[i];
+	}
+
+	void setHospitalCoordinates(int hnum, int x, int y);
+
+	void printHospitals();
 
 private:
 	std::vector<Hospital> _hospitals;
