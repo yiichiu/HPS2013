@@ -85,6 +85,7 @@
     <ClCompile Include="Hospitals.cpp" />
     <ClCompile Include="Person.cpp" />
     <ClCompile Include="Persons.cpp" />
+    <ClCompile Include="SimpleAlgorithm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ambulances.h" />
@@ -93,6 +94,7 @@
     <ClInclude Include="Hospitals.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="Persons.h" />
+    <ClInclude Include="SimpleAlgorithm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
