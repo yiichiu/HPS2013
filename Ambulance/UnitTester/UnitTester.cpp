@@ -3,6 +3,8 @@
 
 #include "..\ambulance\Person.h"
 #include "..\ambulance\FileReader.h"
+#include "..\ambulance\ClusteringAlgorithm.h"
+#include "GridPrinter.h"
 
 #include <stdio.h>
 
@@ -49,10 +51,46 @@ void runTestPerson() {
 
 }
 
+void printGrid() {
+	FileReader fr;
+	Persons p;
+	Hospitals h;
+	fr.readFile("ambusamp2010", &p, &h);
+
+	ClusteringAlgorithm cl(&h, &p);
+	cl.k_means();
+	GridPrinter grp;
+	grp.printGrid("grid.txt", &h, &p);
+}
+
+void test2Persons1Hosp() {
+	FileReader fr;
+	Persons p;
+	Hospitals h;
+	fr.readFile("test2persons.txt", &p, &h);
+	ClusteringAlgorithm cl(&h, &p);
+	cl.k_means();
+	GridPrinter grp;
+	grp.printGrid("grid2persons.txt", &h, &p);
+}
+
+void test3Persons2Hosp() {
+	FileReader fr;
+	Persons p;
+	Hospitals h;
+	fr.readFile("test3persons.txt", &p, &h);
+	ClusteringAlgorithm cl(&h, &p);
+	cl.k_means();
+	GridPrinter grp;
+	grp.printGrid("grid3persons.txt", &h, &p);
+}
+
 int main(int argc, char* argv[])
 {
-	runTestPerson();
-	runTestFileReader();
+	//runTestPerson();
+	//runTestFileReader();
+	//printGrid();
+	test3Persons2Hosp();
 	return 0;
 }
 
