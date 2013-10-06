@@ -79,20 +79,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\ambulance\Ambulances.cpp" />
+    <ClCompile Include="..\ambulance\ClusteringAlgorithm.cpp" />
     <ClCompile Include="..\ambulance\FileReader.cpp" />
     <ClCompile Include="..\ambulance\Hospital.cpp" />
     <ClCompile Include="..\ambulance\Hospitals.cpp" />
     <ClCompile Include="..\ambulance\Person.cpp" />
     <ClCompile Include="..\ambulance\Persons.cpp" />
+    <ClCompile Include="..\ambulance\SimpleAlgorithm.cpp" />
+    <ClCompile Include="GridPrinter.cpp" />
     <ClCompile Include="UnitTester.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ambulance\Ambulances.h" />
+    <ClInclude Include="..\ambulance\ClusteringAlgorithm.h" />
     <ClInclude Include="..\ambulance\FileReader.h" />
     <ClInclude Include="..\ambulance\Hospital.h" />
     <ClInclude Include="..\ambulance\Hospitals.h" />
     <ClInclude Include="..\ambulance\Person.h" />
     <ClInclude Include="..\ambulance\Persons.h" />
+    <ClInclude Include="..\ambulance\SimpleAlgorithm.h" />
+    <ClInclude Include="GridPrinter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
