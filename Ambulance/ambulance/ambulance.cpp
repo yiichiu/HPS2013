@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
 	FileReader fr;
 	fr.readFile("ambusamp2010", &p, &h);
 
-	ClusteringAlgorithm cl;
-	cl.cluster(&h, &p);
+	ClusteringAlgorithm cl(&h, &p);
+	cl.k_means();
 
 	h.printHospitals();
 
