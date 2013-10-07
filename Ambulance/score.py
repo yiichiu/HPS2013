@@ -7,16 +7,7 @@
 #  modified to accomodate new format and rules, fall 2013
 #  by Akshay Kumar [oct. 3 2013] (ak4126 at nyu dot edu)
 
-import sys, re
-
-
-
-# Exception class
-class ValidationError(ValueError): pass
-class FormatSyntaxError(ValidationError): pass
-class DataMismatchError(ValidationError): pass
-class IllegalPlanError(ValidationError): pass
-
+import sys, re, copy
 
 ##  Person object
 ##
@@ -48,10 +39,6 @@ class Person:
     self.rescAmbid = ambid
     return
   
-  def __repr__(self):
-    return '%d: (%d,%d,%d)' % (self.pid, self.x, self.y, self.st)
-
-
 ## Ambulance object
 AMBID = 0
 class Ambulance:
@@ -85,9 +72,7 @@ class Ambulance:
   def inctime(self,t):
     self.time += t
     return
-  def __repr__(self):
-    return '%d %d: (%d,%d)' % (self.hid,self.id,self.x,self.y)
-    
+
 ##  Hostpital object
 ##
 HID = 0
@@ -103,10 +88,6 @@ class Hospital:
     HID += 1
     return
     
-  def __repr__(self):
-    return '%d: (%d,%d) %d' % (self.hid, self.x, self.y, len(self.ambtime))
-  
- 
   def updateLocation(self,x,y):
     self.x = x
     self.y = y
@@ -148,6 +129,7 @@ def readdata(fname):
 def readresults(persons, hospitals, ambulances,result):
   hp1 = re.compile(r'\d+\s*\(\s*\d+\s*,\s*\d+\s*\)')
   hp2 = re.compile('\d+')
+  #input(result)
   
   for line in result.split('\n'):
     line = line.strip().lower()
@@ -165,7 +147,6 @@ def readresults(persons, hospitals, ambulances,result):
           h.updateLocation(x,y)
           for j in h.ambids:
             ambulances[j].updateLocation(x,y)
-        
       continue
 
     if line.startswith('ambulance'):
@@ -183,11 +164,6 @@ def readresults(persons, hospitals, ambulances,result):
           # drop off at hospital  (-1,x,y) , -1 means its drop off move
           ambulances[ambid].path.append((-1,move[0],move[1]))
       continue
-
-  for i in range(len(hospitals)):
-    if hospitals[i].setLoc == False:
-      pass
-      
   return
 
 def dist(a,b):
@@ -224,7 +200,6 @@ def validateAndScore(persons, hospitals, ambulances):
           if len(pers) == AMBCAPACITY:
             errmsg = 'ERROR: Cannot carry more than %d people at once: persId = %d, ambuId = %d' % (AMBCAPACITY, move[0],i)
             break
-            #raise IllegalPlanError(errmsg)
           else:
             p = persons[pid]
             loc = (p.x,p.y)
@@ -238,7 +213,6 @@ def validateAndScore(persons, hospitals, ambulances):
               p = persons[pid]
               errmsg = 'ERROR: Person gets picked or rescued on other path (persId, rescTime, ambuId, Loc) = (%d,%d,%d,(%d,%d))'  % (pid,p.rescTime,p.rescAmbid,p.rescLoc[0],p.rescLoc[1])
               break
-              #raise IllegalPlanError(errmsg)
         
         # Drop    
         elif pid == -1:
@@ -256,7 +230,6 @@ def validateAndScore(persons, hospitals, ambulances):
                   p = persons[tmpid]
                   errmsg = 'ERROR: Person gets picked or rescued on other path (persId, rescTime, ambuId, Loc) = (%d,%d,%d,(%d,%d))'  % (tmpid,p.rescTime,p.rescAmbid,p.rescLoc[0],p.rescLoc[1])
                   break                  
-                  #raise IllegalPlanError(errmsg)
               else:
                 died += 1
                 
@@ -266,12 +239,10 @@ def validateAndScore(persons, hospitals, ambulances):
           else:
             errmsg = 'ERROR: Invalid Drop Location: ambId =%d, loc = (%d,%d)' % (i,loc[0],loc[1])
             break
-            #raise IllegalPlanError(errmsg)
             
         else:
           errmsg = 'ERROR: Invalid person: (ambId,pid) = (%d,%d): ' %(i,pid)
           break
-          #raise IllegalPlanError(errmsg)
       if len(errmsg)>0:
         err = True
         break
@@ -285,6 +256,9 @@ def validateAndScore(persons, hospitals, ambulances):
 def getScore(output, scoreHelper):
   #(persons, hospitals, ambulances) = readdata(inputFile)
   (persons, hospitals, ambulances) = scoreHelper
+  persons = copy.deepcopy(persons)
+  hospitals = copy.deepcopy(hospitals)
+  ambulances = copy.deepcopy(ambulances)
   readresults(persons, hospitals, ambulances, output)
   (score,died,errmsg) = validateAndScore(persons,hospitals,ambulances)
   return score

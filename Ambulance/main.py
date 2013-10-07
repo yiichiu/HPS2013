@@ -52,6 +52,8 @@ def writeOutput(output):
     data = file_.write(output)
 
 def run(cityMap):
+  import copy
+  cityMap = copy.deepcopy(cityMap)
   hospitalsOutput = cityMap.placeHospitals()
 
   dispatcher = Dispatcher(cityMap)
@@ -68,9 +70,10 @@ if __name__ == '__main__':
   scoreHelper = readdata(inputFile)
   bestOutput = None
   bestScore = None
-  while clock() - startTime < 60 * 1.95:
+  while clock() - startTime < 60 * 0.10:
     output = run(cityMap)
     score = getScore(output, scoreHelper)
+    print(score)
     if bestOutput == None:
       bestOutput = output
       bestScore = score
