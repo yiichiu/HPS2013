@@ -2,6 +2,7 @@ from person import Person
 from hospital import Hospital
 
 class CityMap:
+  originalPersonList = None
   __personList = None
   __hospitalList = None
   __ambulanceList = None
@@ -11,6 +12,7 @@ class CityMap:
   __maxAmbulanceNumber = None
 
   def __init__(self):
+    self.originalPersonList = dict()
     self.__personList = dict()
     self.__hospitalList = dict()
     self.__ambulanceList = dict()
@@ -28,6 +30,10 @@ class CityMap:
 
   def getAmbulance(self, ambulanceNumber):
     return self.__ambulanceList[ambulanceNumber]
+
+  def getHospitalLocations(self):
+    coordinates = list({hospital.getLocation() for hospital in self.__hospitalList.values()})
+    return coordinates
 
   def pickupPerson(self, personNumber):
     if personNumber < 0:
@@ -60,16 +66,18 @@ class CityMap:
   def callAmbulances(self):
     calls = set()
     for ambulanceNumber, ambulance in self.__ambulanceList.items():
-      (xCoordinate, yCoordinate, numberOfPassengers) = ambulance.respondToCall()
-      call = (ambulanceNumber, xCoordinate, yCoordinate, numberOfPassengers)
-      if numberOfPassengers < 4:
-        calls.add(call)
+      ambulanceCall = ambulance.respondToCall()
+      if ambulanceCall != None:
+       (xCoordinate, yCoordinate, numberOfPassengers) = ambulanceCall
+       call = (ambulanceNumber, xCoordinate, yCoordinate, numberOfPassengers)
+       calls.add(call)
     return calls
 
   def addPerson(self, person):
     personNumber = self.__maxPersonNumber
     self.__maxPersonNumber = self.__maxPersonNumber + 1
     self.__personList[personNumber] = person
+    self.originalPersonList[personNumber] = person
 
   def addHospital(self, hospital):
     hospitalNumber = self.__maxHospitalNumber

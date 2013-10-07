@@ -45,14 +45,19 @@ def parseInput(fileName):
         addingHospitalInfo = True
   return cityMap
 
+def writeOutput(output):
+  with open('output', 'w') as file_:
+    data = file_.write(output)
+
 if __name__ == '__main__':
   startTime = clock()
 
   cityMap = parseInput('input')
   hospitalsOutput = cityMap.placeHospitals()
-  print(hospitalsOutput)
 
   dispatcher = Dispatcher(cityMap)
-  dispatcher.startDipatch()
+  ambulanceOutput = dispatcher.startDipatch()
 
+  output = hospitalsOutput + '\n' + ambulanceOutput
+  writeOutput(output)
   print('Time remaining: ' + str(clock() - startTime))

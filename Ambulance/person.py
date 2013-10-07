@@ -18,6 +18,9 @@ class Person:
   def getLocation(self):
     return self.__coordinates
 
+  def getOutput(self):
+    return self.__coordinates + (self.__timeRemaining,)
+
   def setLocation(self, xCoordinate, yCoordinate):
     self.__coordinates = (xCoordinate, yCoordinate)
 
