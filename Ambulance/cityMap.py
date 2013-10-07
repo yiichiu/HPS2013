@@ -85,10 +85,16 @@ class CityMap:
     self.__hospitalList[hospitalNumber] = hospital
 
   def placeHospitals(self):
-    (xCoordinate, yCoordinate) = (1, 5)
+    hospitalPlacements = {0:(49, 68),
+                          1:(18, 81),
+                          2:(78, 27),
+                          3:(87, 81),
+                          4:(24, 26)}
+
     outputString = 'hospitals'
 
     for (hospitalNumber, hospital) in self.__hospitalList.items():
+      (xCoordinate, yCoordinate) = hospitalPlacements[hospitalNumber]
       hospital.place(xCoordinate, yCoordinate)
       ambulances = hospital.initializeAmbulances()
       for ambulance in ambulances:

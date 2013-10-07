@@ -10,6 +10,11 @@ class Ambulance:
     self.__targetCoordinates = (xCoordinate, yCoordinate)
     self.__personList = set()
 
+  def getMostUrgentPatientTime(self):
+    if self.__personList == set():
+      return float('Inf')
+    return min([person.getTimeRemaining() for person in self.__personList])
+
   def pickupPerson(self, person):
     if person != None:
       self.__targetPerson = person

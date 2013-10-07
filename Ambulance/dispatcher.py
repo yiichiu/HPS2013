@@ -1,4 +1,5 @@
 import operator
+import random
 
 class Dispatcher:
   __cityMap = None
@@ -26,7 +27,10 @@ class Dispatcher:
       numberOfPassengers = ambulanceReport[3]
       ambulance = self.__cityMap.getAmbulance(ambulanceNumber)
 
-      if numberOfPassengers < 1:
+      (hospitalDistance, (xCoordinate, yCoordinate)) = self.getHospitalCoordinates(ambulanceReport)
+      mostUrgentPatientTime = ambulance.getMostUrgentPatientTime()
+
+      if numberOfPassengers < 4:
         persons = sorted(list(self.__cityMap.get911Calls()))
         distances = self.getDistancesAndRemainingTime(persons, ambulanceReport)
 
@@ -37,18 +41,19 @@ class Dispatcher:
         ambulance.pickupPerson(person)
         self.getOutput(ambulanceNumber, personNumber)
       else:
-        (xCoordinate, yCoordinate) = self.getHospitalCoordinates(ambulanceReport)
         ambulance.sendToLocation(xCoordinate, yCoordinate, True)
         self.getHospitalOutput(ambulanceNumber, xCoordinate, yCoordinate)
 
   def getHospitalCoordinates(self, ambulanceReport):
-    minDistance = min(self.__getHospitalDistance(ambulanceReport), key=operator.itemgetter(1))
-    return minDistance[1]
-
-  def __getHospitalDistance(self, ambulanceReport):
     xCoordinate = ambulanceReport[1]
     yCoordinate = ambulanceReport[2]
 
+    distances = self.__getHospitalDistance(xCoordinate, yCoordinate)
+    minDistance = min(distances, key=operator.itemgetter(1))
+    distance = random.choice(distances)
+    return distance
+
+  def __getHospitalDistance(self, xCoordinate, yCoordinate):
     ambulanceCoordinates = (xCoordinate, yCoordinate)
     hosptialCoordinatesList = self.__cityMap.getHospitalLocations()
 
@@ -68,9 +73,13 @@ class Dispatcher:
 
   def getLocationToSendAmbulance(self, distances):
     # distance = (distance, personNumber, xCoordinateTarget, yCoordinateTarget, timeRemaining)
-    distances = list(distance
-                     for distance in distances
-                     if distance[0] < distance[4])
+    # hospitalDistance = (distance, xCoordinate, yCoordinate)
+    def head(x): return x[0]
+    distances = [distance
+                 for distance in distances
+                 if distance[0] + 
+                    head(min(self.__getHospitalDistance(distance[2], distance[3])))
+                    < distance[4]]
     if len(distances) <= 0:
       return (-1, -1, -1)
 

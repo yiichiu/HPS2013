@@ -3,6 +3,8 @@ from cityMap import CityMap
 from hospital import Hospital
 from dispatcher import Dispatcher
 from time import clock
+from score import getScore
+from score import readdata
 
 def parseInput(fileName):
   addingPersonInfo = False
@@ -49,15 +51,32 @@ def writeOutput(output):
   with open('output', 'w') as file_:
     data = file_.write(output)
 
-if __name__ == '__main__':
-  startTime = clock()
-
-  cityMap = parseInput('input')
+def run(cityMap):
   hospitalsOutput = cityMap.placeHospitals()
 
   dispatcher = Dispatcher(cityMap)
   ambulanceOutput = dispatcher.startDipatch()
 
   output = hospitalsOutput + '\n' + ambulanceOutput
+  return output
+
+if __name__ == '__main__':
+  startTime = clock()
+  inputFile = 'input'
+  cityMap = parseInput(inputFile)
+
+  scoreHelper = readdata(inputFile)
+  bestOutput = None
+  bestScore = None
+  while clock() - startTime < 60 * 1.95:
+    output = run(cityMap)
+    score = getScore(output, scoreHelper)
+    if bestOutput == None:
+      bestOutput = output
+      bestScore = score
+    elif bestScore < score:
+      bestOutput = output
+      bestScore = score
+
   writeOutput(output)
   print('Time remaining: ' + str(clock() - startTime))

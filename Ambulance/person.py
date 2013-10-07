@@ -15,6 +15,9 @@ class Person:
     self.__timeRemaining = max(-1, self.__timeRemaining - timePassed)
     return self.__timeRemaining
 
+  def getTimeRemaining(self):
+    return self.__timeRemaining
+
   def getLocation(self):
     return self.__coordinates
 
