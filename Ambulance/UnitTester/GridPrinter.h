@@ -11,6 +11,7 @@ public:
 	virtual ~GridPrinter(void);
 
 	void printGrid(const std::string &fileName, const Hospitals *h, const Persons *p) const;
+	void printHospitals(const Hospitals *h) const;
 };
 
 

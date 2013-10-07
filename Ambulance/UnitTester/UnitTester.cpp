@@ -55,12 +55,13 @@ void printGrid() {
 	FileReader fr;
 	Persons p;
 	Hospitals h;
-	fr.readFile("ambusamp2010", &p, &h);
+	fr.readFile("ambusamp2010.txt", &p, &h);
 
 	ClusteringAlgorithm cl(&h, &p);
 	cl.k_means();
 	GridPrinter grp;
 	grp.printGrid("grid.txt", &h, &p);
+	grp.printHospitals(&h);
 }
 
 void test2Persons1Hosp() {
@@ -90,7 +91,7 @@ int main(int argc, char* argv[])
 	//runTestPerson();
 	//runTestFileReader();
 	//printGrid();
-	test3Persons2Hosp();
+	printGrid();
 	return 0;
 }
 

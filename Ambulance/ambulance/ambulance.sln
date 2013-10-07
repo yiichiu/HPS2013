@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ambulance", "ambulance.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTester", "..\UnitTester\UnitTester.vcxproj", "{004AE6DE-8100-43A4-BD0E-C6ED88C72D7B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketTester", "..\SocketTester\SocketTester.vcxproj", "{9B70D906-52B9-4F79-ABF5-3FBDF31A607C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{004AE6DE-8100-43A4-BD0E-C6ED88C72D7B}.Debug|Win32.Build.0 = Debug|Win32
 		{004AE6DE-8100-43A4-BD0E-C6ED88C72D7B}.Release|Win32.ActiveCfg = Release|Win32
 		{004AE6DE-8100-43A4-BD0E-C6ED88C72D7B}.Release|Win32.Build.0 = Release|Win32
+		{9B70D906-52B9-4F79-ABF5-3FBDF31A607C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9B70D906-52B9-4F79-ABF5-3FBDF31A607C}.Debug|Win32.Build.0 = Debug|Win32
+		{9B70D906-52B9-4F79-ABF5-3FBDF31A607C}.Release|Win32.ActiveCfg = Release|Win32
+		{9B70D906-52B9-4F79-ABF5-3FBDF31A607C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
