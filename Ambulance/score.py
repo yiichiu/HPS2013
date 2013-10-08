@@ -112,6 +112,8 @@ def readdata(fname):
         mode = 1
       elif line.startswith("hospital"):
         mode = 2
+      elif line.startswith('<'):
+        mode = 0    
       elif line:
         (a,b,c) = (0,0,0)
         if mode == 1:

@@ -6,6 +6,9 @@ from time import clock
 from score import getScore
 from score import readdata
 
+import socket
+from subprocess import call
+
 def parseInput(fileName):
   addingPersonInfo = False
   addingHospitalInfo = False
@@ -14,7 +17,7 @@ def parseInput(fileName):
     cityMap = CityMap()
 
     for row in file_:
-      if row == '\n':
+      if row == '\n' or '<' in row:
         # Empty rows should trigger a new header type
         addingPersonInfo = False
         addingHospitalInfo = False
@@ -63,17 +66,42 @@ def run(cityMap):
   return output
 
 if __name__ == '__main__':
-  startTime = clock()
+  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  s.connect(('127.0.0.1', 5555))
+  print 'connected to socket'
+  s.send("White Truffle")
+  print 'sent team name'
+  input_data=''
+
+  while True:
+    chunk = s.recv(1000000)
+    print chunk
+    if not chunk: break
+    if chunk == '':
+        raise RuntimeError("socket connection broken")
+    input_data = input_data + chunk
+    if '<' in input_data:
+        break
+
+  print 'the input is ' + input_data
+  f = open('input', 'w')
+  f.write(input_data)
+  f.close()
+
+  
+  call ('./ambulance')
+
   inputFile = 'input'
   cityMap = parseInput(inputFile)
 
+  startTime = clock()
   scoreHelper = readdata(inputFile)
   bestOutput = None
   bestScore = None
-  while clock() - startTime < 60 * 0.10:
+  while clock() - startTime < 60:
     output = run(cityMap)
     score = getScore(output, scoreHelper)
-    print(score)
+    #print(score)
     if bestOutput == None:
       bestOutput = output
       bestScore = score
@@ -81,5 +109,16 @@ if __name__ == '__main__':
       bestOutput = output
       bestScore = score
 
-  writeOutput(output)
-  print('Time remaining: ' + str(clock() - startTime))
+  #writeOutput(output)
+  output += '\n<EOM>'
+  
+  totalsent=0
+  MSGLEN = len(output) 
+  while totalsent < MSGLEN:
+    sent = s.send(output[totalsent:])
+    if sent == 0:
+        raise RuntimeError("socket connection broken")
+    totalsent = totalsent + sent
+  print 'sent result ' + output
+
+  s.close()

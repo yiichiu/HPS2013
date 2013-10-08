@@ -1,14 +1,16 @@
-#pragma once
+#ifndef _HOSPITALS_H_
+#define _HOSPITALS_H_
 
 #include <vector>
 #include "Hospital.h"
+#include <string.h>
 
 class Hospitals
 {
 public:
-	Hospitals(void);
-	virtual ~Hospitals(void);
-
+	Hospitals();
+	virtual ~Hospitals();
+	void outputHospitals(const char *fileName) const;
 	void addHospital(Hospital h) {
 		_hospitals.push_back(h);
 	}
@@ -29,3 +31,4 @@ private:
 	std::vector<Hospital> _hospitals;
 };
 
+#endif // _HOSPITALS_H_

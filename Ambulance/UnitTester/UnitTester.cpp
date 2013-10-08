@@ -4,6 +4,9 @@
 #include "..\ambulance\Person.h"
 #include "..\ambulance\FileReader.h"
 #include "..\ambulance\ClusteringAlgorithm.h"
+#include "..\ambulance\Ambulances.h"
+#include "..\ambulance\SimpleAlgorithm.h"
+
 #include "GridPrinter.h"
 
 #include <stdio.h>
@@ -75,6 +78,24 @@ void test2Persons1Hosp() {
 	grp.printGrid("grid2persons.txt", &h, &p);
 }
 
+void runTestAmbulances() {
+	printf("runTestAmbulances\n----------------\n");
+	FileReader fr;
+	Persons p;
+	Hospitals h;
+	fr.readFile("ambusamp2010.txt", &p, &h);
+
+	Ambulances ambs;
+	for (long i=0; i < h.getCount(); ++i) {
+		ambs.addAmbulances(h.getHospital(i));
+	}
+	if (ambs.getCount() == 41)
+		printf("success\n");
+	else
+		printf("test failed\n");
+	
+}
+
 void test3Persons2Hosp() {
 	FileReader fr;
 	Persons p;
@@ -86,12 +107,26 @@ void test3Persons2Hosp() {
 	grp.printGrid("grid3persons.txt", &h, &p);
 }
 
+void testSimpleAlgorithm() {
+	printf("testSimpleAlgorith\n-------------------\n");
+	FileReader fr;
+	Persons p;
+	Hospitals h;
+	fr.readFile("test3persons.txt", &p, &h);
+	ClusteringAlgorithm cl(&h, &p);
+	cl.k_means();
+	SimpleAlgorithm algo;
+	algo.runAlgorithm(&h, &p);
+}
+
 int main(int argc, char* argv[])
 {
 	//runTestPerson();
 	//runTestFileReader();
 	//printGrid();
-	printGrid();
+	//runTestAmbulances();
+	testSimpleAlgorithm();
+
 	return 0;
 }
 

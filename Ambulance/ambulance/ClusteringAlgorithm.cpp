@@ -126,8 +126,8 @@ void ClusteringAlgorithm::k_means() {
 	//
 	while (some_point_is_moving) {
 
-		std::cout << std::endl << "*** Num Iterations " 
-			<< num_iterations  << std::endl << std::endl ;;
+		//std::cout << std::endl << "*** Num Iterations " 
+		//	<< num_iterations  << std::endl << std::endl ;;
 
 		some_point_is_moving = false;
 
@@ -143,9 +143,9 @@ void ClusteringAlgorithm::k_means() {
 			Person p = _psons->getPerson(pid);
 			min = ClusteringAlgorithm::distance(h, p);
 
-			std::cout << "pid[" << pid << "] in cluster=" 
-				<< _pointsToClusters[pid] 
-				<< " with distance=" << min << std::endl;
+			//std::cout << "pid[" << pid << "] in cluster=" 
+			//	<< _pointsToClusters[pid] 
+			//	<< " with distance=" << min << std::endl;
 
 			//
 			// foreach centroid
@@ -164,8 +164,8 @@ void ClusteringAlgorithm::k_means() {
 					_clustersToPoints[_pointsToClusters[pid]].erase(pid);
 
 					some_point_is_moving = true;
-					std::cout << "\tcluster=" << cid 
-						<< " closer, dist=" << d << std::endl;	    
+					//std::cout << "\tcluster=" << cid 
+					//	<< " closer, dist=" << d << std::endl;	    
 				}
 				cid++;
 			}
@@ -177,7 +177,7 @@ void ClusteringAlgorithm::k_means() {
 				// insert
 				_pointsToClusters[pid] = to_cluster;
 				_clustersToPoints[to_cluster].insert(pid);
-				std::cout << "\t\tmove to cluster=" << to_cluster << std::endl;
+				//std::cout << "\t\tmove to cluster=" << to_cluster << std::endl;
 			}
 		}      
 

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _HOSPITAL_H_
+#define _HOSPITAL_H_
+
 class Hospital
 {
 public:
@@ -7,4 +9,6 @@ public:
 
 	int _x, _y, _ambulanceCount;
 };
+
+#endif // _HOSPITAL_H_
 

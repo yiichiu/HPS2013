@@ -32,7 +32,11 @@ class CityMap:
     return self.__ambulanceList[ambulanceNumber]
 
   def getHospitalLocations(self):
-    coordinates = list({hospital.getLocation() for hospital in self.__hospitalList.values()})
+    coordinates = list();
+    for hospital in self.__hospitalList.values():
+      coordinates.append(hospital.getLocation())
+    #coordinates = list({hospital.getLocation() for hospital in self.__hospitalList.values()})
+    #print "coordinates = " + str(coordinates)
     return coordinates
 
   def pickupPerson(self, personNumber):
@@ -84,12 +88,19 @@ class CityMap:
     self.__maxHospitalNumber = self.__maxHospitalNumber + 1
     self.__hospitalList[hospitalNumber] = hospital
 
+  def readHospitalsFromFile(self):
+    placements = {}
+    f = open('hospitals.txt', 'r')
+    i = 0
+    for line in f:
+      coords = line.split(' ')
+      placements[i] = (int(coords[0]), int(coords[1]))
+      i += 1
+
+    return placements  
+    
   def placeHospitals(self):
-    hospitalPlacements = {0:(49, 68),
-                          1:(18, 81),
-                          2:(78, 27),
-                          3:(87, 81),
-                          4:(24, 26)}
+    hospitalPlacements = self.readHospitalsFromFile()
 
     outputString = 'hospitals'
 

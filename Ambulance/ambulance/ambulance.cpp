@@ -13,15 +13,12 @@ int main(int argc, char* argv[])
 	Persons p;
 
 	FileReader fr;
-	fr.readFile("ambusamp2010", &p, &h);
+	fr.readFile("input", &p, &h);
 
 	ClusteringAlgorithm cl(&h, &p);
 	cl.k_means();
 
-	h.printHospitals();
-
-	SimpleAlgorithm algo;
-	algo.runAlgorithm(&h, &p);
+	h.outputHospitals("hospitals.txt");
 
 	return 0;
 }
