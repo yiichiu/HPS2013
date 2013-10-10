@@ -54,8 +54,12 @@ class Grid:
 
   def calcGrid(self):
     self.__calcPull()
-    
+
+  def getGrid(self):
+    return self.__grid
+  
 if __name__ == '__main__':
     g = Grid()
     g.addMove(Grid.RED, 5, 10)
     g.calcGrid()
+    gmap = g.getGrid()
