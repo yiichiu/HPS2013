@@ -30,7 +30,7 @@ class Grid:
   def __calcPull(self):
     for y in range(0, 1000):
       for x in range(0, 1000):
-        self.__calcPullForPoint((x, y))
+        self.__calcPullForPoint((x+1, y+1))
 
   def __calcPullForColor(self, color, point):
     pull = 0.0
