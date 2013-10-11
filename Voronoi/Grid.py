@@ -1,3 +1,5 @@
+import cPickle
+import math
 
 class Grid:
   RED = 1
@@ -26,7 +28,7 @@ class Grid:
 
 
   def __distance(self, p1, p2):
-    dist = pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2)
+    dist = math.sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2))
     return dist
 
   def __calcPull(self):
@@ -43,12 +45,15 @@ class Grid:
         if dist != 0:
           pull = pull + 1.0 / (dist * dist)
           #print 'pulltmp = ' + str(pullTmp) + ' pull is ' + str(pull)
+        else:
+          pull = float('Inf')
 
     #print 'pull for color ' + str(color) + ' is ' + str(pull)
     return pull
         
   def __calcPullForPoint(self, point):
     redPull = self.__calcPullForColor(self.RED, point)
+    #raw_input (str(redPull) + ' ' + str(point))
     bluePull = self.__calcPullForColor(self.BLUE, point)
 
     # TODO: what to do if pull is equal for both colors?
@@ -81,16 +86,22 @@ class Grid:
       for x in range(0, self.GRID_LENGTH):
         stone = self.__getStoneAtLocation(x, y)
         if stone == '':
-          strtmp = strtmp + str(self.__grid[y][x])
+          strtmp = strtmp + str(self.__grid[x][y])
         else:
           strtmp = strtmp + stone
       print strtmp
+
+  def saveGridToFile(self):
+    output = open('grid.p', 'wb')
+    cPickle.dump(self.__grid, output, -1)
+    output.close()
     
 if __name__ == '__main__':
     g = Grid()
-    g.addMove(Grid.RED, 5, 10)
-    g.addMove(Grid.BLUE, 15, 20)
-    g.addMove(Grid.RED, 10, 18)
-    g.addMove(Grid.BLUE, 6, 7)
+    g.addMove(Grid.RED, 0, 0)
+    g.addMove(Grid.BLUE, Grid.GRID_LENGTH/2, Grid.GRID_LENGTH/2)
+    g.addMove(Grid.RED, Grid.GRID_LENGTH-1, 0)
+    #g.addMove(Grid.BLUE, 6, 7)
     g.calcGrid()
-    gmap = g.printGrid()
+    g.printGrid()
+    g.saveGridToFile()
