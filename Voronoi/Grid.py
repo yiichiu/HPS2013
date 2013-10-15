@@ -1,10 +1,11 @@
 import cPickle
 import math
+import Moves
 
 class Grid:
   RED = 1
   BLUE = 2
-  GRID_LENGTH = 25
+  GRID_LENGTH = 500
   
   __grid = None
   __moves = None
@@ -12,7 +13,7 @@ class Grid:
   def __init__(self, gridLength, moves):
     self.GRID_LENGTH = gridLength
     self.__grid = []
-    self.__moves = moves
+    self.__moves = moves.getMoves()
     for i in range (0, self.GRID_LENGTH):
       self.__grid.append([])
       for j in range (0, self.GRID_LENGTH):
@@ -26,6 +27,8 @@ class Grid:
     for y in range(0, self.GRID_LENGTH):
       for x in range(0, self.GRID_LENGTH):
         self.__calcPullForPoint((x, y))
+    for move in self.__moves:
+      self.__grid[move[1]][move[2]] = 0
 
   def __calcPullForColor(self, color, point):
     pull = 0.0
@@ -68,7 +71,15 @@ class Grid:
           return 'B'
 
     return ''
-  
+
+  def addMove(self, player, x, y):
+      if player != 1 and player != 2:
+        raise Exception('Invalid player ' + str(player))
+      if (x < 0 or x >= self.GRID_LENGTH or y < 0 or y >= self.GRID_LENGTH):
+          raise Exception('Invalid coordinates ' + str(x) + ',' + str(y))
+        
+      self.__moves.append((player, x, y))
+    
   def printGrid(self):
     self.calcGrid()
     strtmp = ''
@@ -89,11 +100,13 @@ class Grid:
     output.close()
     
 if __name__ == '__main__':
-    g = Grid()
+    m = Moves.Moves(500, 5)
+    g = Grid(500, m)
+    
     g.addMove(Grid.RED, 0, 0)
     g.addMove(Grid.BLUE, Grid.GRID_LENGTH/2, Grid.GRID_LENGTH/2)
-    g.addMove(Grid.RED, Grid.GRID_LENGTH-1, 0)
-    #g.addMove(Grid.BLUE, 6, 7)
+    g.addMove(Grid.RED, Grid.GRID_LENGTH/3, Grid.GRID_LENGTH/3)
+    g.addMove(Grid.RED, Grid.GRID_LENGTH/3*2, Grid.GRID_LENGTH/3*2)
     g.calcGrid()
-    g.printGrid()
+    #g.printGrid()
     g.saveGridToFile()
