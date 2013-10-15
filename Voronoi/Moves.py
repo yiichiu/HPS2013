@@ -15,6 +15,9 @@ class Moves:
 
     self.__moves = []
 
+  def isFirstMove(self):
+    return len(self.__moves) == 0
+  
   def getMoves(self):
     return self.__moves
   
@@ -81,8 +84,9 @@ class Moves:
   
   def isValidMove(self, x, y):
     for move in self.__moves:
-      if (move[0] == x and move[1] == y):
+      if (move[1] == x and move[2] == y):
         return False
+
     return True
   
 if __name__ == '__main__':

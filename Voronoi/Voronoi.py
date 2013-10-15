@@ -1,9 +1,10 @@
 import Moves
 import random
 import Algorithm
-    
+import Grid
+
 class Voronoi:
-  TOTAL_MOVES = 20
+  TOTAL_MOVES = 10
   GRID_LENGTH = 25
   PLAYER_ONE = 1
   PLAYER_TWO = 2
@@ -46,15 +47,22 @@ class Voronoi:
       self.__grid.unplayMove()
     
   def playGame(self):
+    #g = Grid.Grid(self.__moves.GRID_LENGTH, self.__moves.getMoves())
     scores = ()
-    r1 = Algorithm.RandomAlgorithmLookAhead(self.PLAYER_ONE)
-    r2 = Algorithm.RandomAlgorithmImp(self.PLAYER_TWO)
+    r1 = Algorithm.GreedyAlgorithm(self.PLAYER_ONE)
+    r2 = Algorithm.GreedyAlgorithm(self.PLAYER_TWO)
     
     for i in range(0, self.TOTAL_MOVES):
       r1.playMove(self.__moves)
+      scores = self.__moves.calcScore()
+      #g.printGrid()
+      print str(scores)
+      print str(self.__moves.getMoves())
+      
       r2.playMove(self.__moves)
 
       scores = self.__moves.calcScore()
+      #g.printGrid()
       print str(scores)
       print str(self.__moves.getMoves())
 

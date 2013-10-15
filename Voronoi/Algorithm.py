@@ -3,6 +3,8 @@ import Moves
 
 class Algorithm:
   CURRENT_PLAYER = 0
+  PLAYER_ONE = 1
+  PLAYER_TWO = 2
   def __init__(self, currPlayer):
     self.CURRENT_PLAYER = currPlayer
 
@@ -10,6 +12,43 @@ class Algorithm:
     # ??? how to do empty statement ???
     a = 1 + 1
 
+class GreedyAlgorithm(Algorithm):
+  def __init__(self, currPlayer):
+    Algorithm.__init__(self, currPlayer)
+    random.seed()
+
+  def __findRandomMoveToPlay(self, moves):
+    randomMove = ()
+    while (len(randomMove) == 0):
+      x = random.randint(0, moves.GRID_LENGTH - 1)
+      y = random.randint(0, moves.GRID_LENGTH - 1)
+      if moves.isValidMove(x, y):
+        randomMove = (x, y)
+
+    return randomMove
+  
+  def playMove(self, moves):
+    move = ()
+    bestScore = (0, 0)
+    if moves.isFirstMove():
+      #move = self.__findRandomMoveToPlay(moves)
+      move = (moves.GRID_LENGTH / 2, moves.GRID_LENGTH / 2)
+    else:
+      for x in range(0, moves.GRID_LENGTH):
+        for y in range(0, moves.GRID_LENGTH):
+          if moves.isValidMove(x, y):
+            moves.addMove(self.CURRENT_PLAYER, x, y)
+            score = moves.calcScore()
+            if (score[self.CURRENT_PLAYER - 1] > bestScore[self.CURRENT_PLAYER - 1]):
+              bestScore = score
+              move = (x, y)
+              #print 'found new best move ' + str(move) + ' for best score ' + str(bestScore)
+
+            moves.unplayMove()
+            
+    moves.addMove(self.CURRENT_PLAYER, move[0], move[1])
+    print str(moves.getMoves())
+            
 class RandomAlgorithm():
   CURRENT_PLAYER = 0
   def __init__(self, currPlayer):
@@ -37,7 +76,7 @@ class RandomAlgorithmImp():
     bestMove = ()
     bestScore = 0
     movesToPlay = []
-    while (len(movesToPlay) < 3):
+    while (len(movesToPlay) < 5):
       x = random.randint(0, moves.GRID_LENGTH - 1)
       y = random.randint(0, moves.GRID_LENGTH - 1)
       if moves.isValidMove(x, y):

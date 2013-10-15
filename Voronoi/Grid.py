@@ -9,23 +9,14 @@ class Grid:
   __grid = None
   __moves = None
   
-  def __init__(self):
+  def __init__(self, gridLength, moves):
+    self.GRID_LENGTH = gridLength
     self.__grid = []
-    self.__moves = []
+    self.__moves = moves
     for i in range (0, self.GRID_LENGTH):
       self.__grid.append([])
       for j in range (0, self.GRID_LENGTH):
         self.__grid[i].append(0)
-
-  def addMove(self, color, x, y):
-      if color != self.RED and color != self.BLUE:
-        raise Exception('Invalid color ' + str(color))
-      if (x < 0 or x >= self.GRID_LENGTH or y < 0 or y >= self.GRID_LENGTH):
-          raise Exception('Invalid coordinates ' + str(x) + ',' + str(y))
-        
-      self.__moves.append((color, x, y))
-      print str(self.__moves)
-
 
   def __distance(self, p1, p2):
     dist = math.sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2))
@@ -79,6 +70,7 @@ class Grid:
     return ''
   
   def printGrid(self):
+    self.calcGrid()
     strtmp = ''
     stone = ''
     for y in range(0, self.GRID_LENGTH):
