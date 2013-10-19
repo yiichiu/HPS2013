@@ -112,8 +112,11 @@ def readdata(fname):
         mode = 1
       elif line.startswith("hospital"):
         mode = 2
+<<<<<<< HEAD
       elif line.startswith('<'):
         mode = 0    
+=======
+>>>>>>> f2da8660fcc2857eb2c91f988b5d53989b6820c4
       elif line:
         (a,b,c) = (0,0,0)
         if mode == 1:

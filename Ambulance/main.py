@@ -6,9 +6,12 @@ from time import clock
 from score import getScore
 from score import readdata
 
+<<<<<<< HEAD
 import socket
 from subprocess import call
 
+=======
+>>>>>>> f2da8660fcc2857eb2c91f988b5d53989b6820c4
 def parseInput(fileName):
   addingPersonInfo = False
   addingHospitalInfo = False
@@ -17,7 +20,11 @@ def parseInput(fileName):
     cityMap = CityMap()
 
     for row in file_:
+<<<<<<< HEAD
       if row == '\n' or '<' in row:
+=======
+      if row == '\n':
+>>>>>>> f2da8660fcc2857eb2c91f988b5d53989b6820c4
         # Empty rows should trigger a new header type
         addingPersonInfo = False
         addingHospitalInfo = False
@@ -66,6 +73,7 @@ def run(cityMap):
   return output
 
 if __name__ == '__main__':
+<<<<<<< HEAD
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   s.connect(('127.0.0.1', 5555))
   print 'connected to socket'
@@ -102,6 +110,19 @@ if __name__ == '__main__':
     output = run(cityMap)
     score = getScore(output, scoreHelper)
     #print(score)
+=======
+  startTime = clock()
+  inputFile = 'input'
+  cityMap = parseInput(inputFile)
+
+  scoreHelper = readdata(inputFile)
+  bestOutput = None
+  bestScore = None
+  while clock() - startTime < 60 * 0.10:
+    output = run(cityMap)
+    score = getScore(output, scoreHelper)
+    print(score)
+>>>>>>> f2da8660fcc2857eb2c91f988b5d53989b6820c4
     if bestOutput == None:
       bestOutput = output
       bestScore = score
@@ -109,6 +130,7 @@ if __name__ == '__main__':
       bestOutput = output
       bestScore = score
 
+<<<<<<< HEAD
   #writeOutput(output)
   output += '\n<EOM>'
   
@@ -122,3 +144,7 @@ if __name__ == '__main__':
   print 'sent result ' + output
 
   s.close()
+=======
+  writeOutput(output)
+  print('Time remaining: ' + str(clock() - startTime))
+>>>>>>> f2da8660fcc2857eb2c91f988b5d53989b6820c4
