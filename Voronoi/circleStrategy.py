@@ -6,7 +6,9 @@ from FastMoves import FastMoves
 
 def playMove(state):
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
-  points = getPointsOnCircle((500, 500), 260, state.boardSize, alreadyPlayedMoves)
+  points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
+  innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
+  points = innerPoints + points
 
   #moves = populateMoves(state)
   #bestMove = -1
