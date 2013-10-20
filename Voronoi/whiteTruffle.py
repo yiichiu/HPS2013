@@ -6,7 +6,7 @@ from exceptions import ZeroDivisionError
 port = 4567
 eom = "<EOM>"
 maxlen = 999999
-dim = 1000
+boardSize = 1000
 print(sys.argv)
 if len(sys.argv) > 1:
   port = int(sys.argv[1])
@@ -26,7 +26,7 @@ def readSocket(sock, timeout=0):
     if eom in inpData:
       break
   inpData=inpData.strip()[:-len(eom)]
-  serversaid(inpData.replace('\n', ' [N] ')[:90])
+  serverSaid(inpData.replace('\n', ' [N] ')[:90])
   return inpData.strip()
 
 def sendSocket(sock, msg):
@@ -38,27 +38,27 @@ def sendSocket(sock, msg):
     if sent == 0:
       raise RuntimeError("socket connection broken")
     totalsent = totalsent + sent
-  isaid(msg)
+  iSaid(msg)
 
 def makeMove(socket, pid, x, y):
   sendSocket(socket,"(%d,%d,%d)"%(pid, x, y))
 
-def serversaid(msg):
+def serverSaid(msg):
   print("Server: %s"%msg[:80])
-def isaid(msg):
+def iSaid(msg):
   print("Client: %s"%msg[:80])
 
 class State:
-  def __init__(self, numberOfPlayers, numberOfStones, playerId):
+  def __init__(self, numberOfPlayers, numberOfStones, playerId, boardSize):
     self.playerId = playerId
     self.numberOfStones = numberOfStones
     self.numberOfPlayers = numberOfPlayers
+    self.boardSize = boardSize
 
     self.nextPlayer = 0
     self.timeLeft = -1.00
     self.moves = []
     self.areas = []
-    self.myareas = []
 
   def parseState(self, gameState):
     # 1. Player ID, Remaining Time
@@ -93,12 +93,14 @@ class State:
     alist[0] = alist[0][1:]
     alist[-1] = alist[-1][:-1]
     for astr in alist:
-      aid,area = astr.split(',')
-      print("aid %s, area %s"%(aid,area))
+      (aid, area) = astr.split(',')
+      print("Player %s area: %s" % (aid, area))
       self.areas.append(int(area))
-      assert(len(self.areas)==int(aid)+1)
+      assert(len(self.areas) == int(aid)+1)
 
 if __name__=="__main__":
+  from circleStrategy import playMove
+
   print("Get question from socket")
   try:
     # Process Protocol 2: Return Team Name
@@ -111,31 +113,28 @@ if __name__=="__main__":
     params = params.split(',')
     numberOfPlayers = int(params[0])
     numberOfStones = int(params[1])
-    assert(int(params[2]) == dim)
+    assert(int(params[2]) == boardSize)
     pid = int(params[3])
-    state = State(numberOfPlayers, numberOfStones, pid)
+    state = State(numberOfPlayers, numberOfStones, pid, boardSize)
 
     # Process Protocol 4: Play Game
     for turn in range(numberOfStones):
       for player in range(1, numberOfPlayers+1):
         gameState = readSocket(s)
         state.parseState(gameState)
-        print(state.moves)
-        print(state.areas)
-        print(state.myareas)
-        input('')
 
         assert(player == state.nextPlayer)
         if player == pid:
-          print("Small kine thinking brah")
+          print("Small Kine Thinking Brah")
+          (x, y) = playMove(state)
           makeMove(s, pid, x, y)
 
     # Read Game Result
     state.parseState(readSocket(s))
     if np.argmax(state.areas) == state.playerId:
-      print("I won! with %.2f percent area"%(100*float(state.areas[state.playerId])/dim**2))
+      print("I won! with %.2f percent area"%(100*float(state.areas[state.playerId])/boardSize**2))
     else:
-      print("I lost from player %d! with %.2f percent area"%(np.argmax(state.areas),100*float(state.areas[state.playerId])/dim**2))
+      print("I lost from player %d! with %.2f percent area"%(np.argmax(state.areas),100*float(state.areas[state.playerId])/boardSize**2))
   finally:
     print("Close socket")
     s.close()
