@@ -7,11 +7,29 @@ from operator import itemgetter
 
 def playMove(state):
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
-  points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
-  innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
-  points = innerPoints + points
-  nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
-  (x, y) = max(nextMoves, key = itemgetter(state.playerId+1))[0:2]
+  if state.playerId == 1 and state.moves[1] == []:
+    (x, y) = (500, 750)
+  elif state.timeLeft > 20 or len(state.moves[2]) == state.numberOfStones - 1:
+    points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
+    innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
+    innerPoints2 = getPointsOnCircle((500, 500), 50, state.boardSize, alreadyPlayedMoves)
+    points = innerPoints + innerPoints2 + points
+    nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
+    (x, y) = max(nextMoves, key = itemgetter(state.playerId+1))[0:2]
+  elif state.timeLeft > 10:
+    if state.playerId == 1:
+      opponentMoves = state.moves[2]
+    else:
+      opponentMoves = state.moves[1]
+    move = [getPointsOnCircle(move, 1, state.boardSize)
+            for move in opponentMoves]
+    points = list(itertools.chain(*move))
+    nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
+    (x, y) = max(nextMoves, key = itemgetter(state.playerId+1))[0:2]
+  else:
+    points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
+    index = random.randint(0, len(points)-1)
+    (x, y) = points[index]
   return (x, y)
 
 def getBestMove(previousMoves, points, playerId, numberOfStones):
