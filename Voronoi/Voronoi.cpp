@@ -168,11 +168,11 @@ void calculatePull(Move *m)
 
 			if (currPlayer == 1)
 			{
-				 pull1 += matrix1[x][y];
+				 pull1 = matrix1[x][y] + pull;
 			}
 			else
 			{
-				pull2 += matrix2[x][y];
+				pull2 = matrix2[x][y] + pull;
 			}
 			
 			if (pull1 > pull2)
