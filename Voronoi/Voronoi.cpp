@@ -34,11 +34,12 @@ double matrix2[1000][1000];
 
 void outputFile(const char *fileName)
 {
-	//std::ofstream f;
-	//f.open(fileName);
+	std::ofstream f;
+	f.open(fileName);
+	f << outputString << std::endl;
 	std::cout << outputString;
 
-	//f.close();
+	f.close();
 }
 
 void parseTestMoves(std::string &line)
@@ -166,13 +167,15 @@ void calculatePull(Move *m)
 				pull = 1000000;	// infinity approximation
 			}
 
+			pull1 = matrix1[x][y];
+			pull2 = matrix2[x][y];
 			if (currPlayer == 1)
 			{
-				 pull1 = matrix1[x][y] + pull;
+				 pull1 += pull;
 			}
 			else
 			{
-				pull2 = matrix2[x][y] + pull;
+				pull2 += pull;
 			}
 			
 			if (pull1 > pull2)
