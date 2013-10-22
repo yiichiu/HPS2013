@@ -7,11 +7,11 @@ from operator import itemgetter
 
 def playMove(state):
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
-  points = getPointsOnCircle((500, 500), 300, state.boardSize, alreadyPlayedMoves)
+  points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
   innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
   points = innerPoints + points
   nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
-  (x, y) = max(nextMoves, key = itemgetter(2))[0:2]
+  (x, y) = max(nextMoves, key = itemgetter(state.playerId+1))[0:2]
   return (x, y)
 
 def getBestMove(previousMoves, points, playerId, numberOfStones):
