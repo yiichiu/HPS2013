@@ -2,41 +2,58 @@ import random
 import math
 import copy
 import itertools
+import subprocess
+from operator import itemgetter
 
 def playMove(state):
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
-  points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
+  points = getPointsOnCircle((500, 500), 300, state.boardSize, alreadyPlayedMoves)
   innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
   points = innerPoints + points
-  (x, y) = getBestMove(state.moves, points)
+  nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
+  (x, y) = max(nextMoves, key = itemgetter(2))[0:2]
   return (x, y)
 
-def getBestMove(previousMoves, points):
-  
-  tmp='400,500,404,472,404,528,420,440\n1,1,0,0,2,500,500'
-  p = subprocess.Popen([".\Voronoi.exe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-  output = p.communicate(tmp)[0]
+def getBestMove(previousMoves, points, playerId, numberOfStones):
+  points = str(points)
+  points = points.replace('(', '')
+  points = points.replace(')', '')
+  points = points.replace(' ', '')
+  points = points.replace(']', '')
+  points = points.replace('[', '')
+
+  points = points + '\n' + str(playerId) + ',' + str(numberOfStones)
+
+  playerOneMoves = str(previousMoves[1])
+  playerOneMoves = playerOneMoves.replace('(', '1,')
+  playerOneMoves = playerOneMoves.replace(')', '')
+  playerOneMoves = playerOneMoves.replace('[', '')
+  playerOneMoves = playerOneMoves.replace(']', '')
+  playerOneMoves = playerOneMoves.replace(' ', '')
+  if playerOneMoves != '':
+    playerOneMoves = ',' + playerOneMoves
+    
+  playerTwoMoves = str(previousMoves[2])
+  playerTwoMoves = playerTwoMoves.replace('(', '2,')
+  playerTwoMoves = playerTwoMoves.replace(')', '')
+  playerTwoMoves = playerTwoMoves.replace('[', '')
+  playerTwoMoves = playerTwoMoves.replace(']', '')
+  playerTwoMoves = playerTwoMoves.replace(' ', '')
+  if playerTwoMoves != '':
+    playerTwoMoves = ',' + playerTwoMoves
+
+  input_ = points + playerOneMoves + playerTwoMoves
+  p = subprocess.Popen(["./Voronoi"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+  output = p.communicate(input_)[0]
+  output = [int(x) for x in output.split(',')]
+  output = zip(output, output[1:], output[2:], output[3:])[::4]
   return output
-
-def populateMoves(state):
-  opponentId = 1 if state.playerId == 2 else 2
-  playerMoves = state.moves[state.playerId]
-  opponentMoves = state.moves[opponentId]
-
-  moves = FastMoves(state.boardSize, state.numberOfStones)
-  addMoves(moves, playerMoves, state.playerId)
-  addMoves(moves, opponentMoves, opponentId)
-  return moves
-
-def addMoves(moves, playerMoves, playerId):
-  for move in playerMoves:
-    moves.addMove(playerId, move[0], move[1])
 
 def getPointsOnCircle(center, radius, boardSize, excludeMoves = []):
   return [(x, y)
           for x in range(0, boardSize)
           for y in range(0, boardSize)
-          if abs(getDistance(center, (x, y)) - radius) <= 0
+          if abs(getDistance(center, (x, y)) - radius) == 0
           if (x,y) not in excludeMoves]
 
 def getDistance((x1, y1), (x2, y2)):
