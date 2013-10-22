@@ -6,10 +6,13 @@ import subprocess
 from operator import itemgetter
 
 def playMove(state):
+  playerOneScore = state.areas[1]
+  playerTwoScore = state.areas[2]
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
+
   if state.playerId == 1 and state.moves[1] == []:
     (x, y) = (500, 750)
-  elif state.timeLeft > 20 or len(state.moves[2]) == state.numberOfStones - 1:
+  elif state.timeLeft > 20 or len(state.moves[2]) > state.numberOfStones - 1 or playerOneScore > playerTwoScore:
     points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
     innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
     innerPoints2 = getPointsOnCircle((500, 500), 50, state.boardSize, alreadyPlayedMoves)
