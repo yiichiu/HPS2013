@@ -19,15 +19,18 @@ struct Move {
 	int y;
 };
 
-typedef std::vector<Move> MovesType;
+typedef std::vector<Move*> MovesType;
 
 MovesType moves, testMoves;
+int movesNum = 0;
 int player1Score = 0;
 int player2Score = 0;
 int currPlayer = 0;
 int outX = 0;
 int outY = 0;
 std::string outputString;
+double matrix1[1000][1000];
+double matrix2[1000][1000];
 
 void outputFile(const char *fileName)
 {
@@ -49,10 +52,10 @@ void parseTestMoves(std::string &line)
 		int x = atoi(pch);
 		pch = strtok(NULL, ",");
 		int y = atoi(pch);
-		Move m;
-		m.playerNum = currPlayer;
-		m.x = x;
-		m.y = y;
+		Move *m = new Move();
+		m->playerNum = currPlayer;
+		m->x = x;
+		m->y = y;
 		testMoves.push_back(m);
 		pch = strtok(NULL, ",");
 	}
@@ -70,15 +73,16 @@ void parseMoves(std::string &line)
 	pch = strtok (NULL, ",");
 	while (pch != NULL)
 	{
-		Move m;
-		m.playerNum = atoi(pch);
+		Move *m = new Move();
+		m->playerNum = atoi(pch);
 		pch = strtok (NULL, ",");
-		m.x = atoi(pch);
+		m->x = atoi(pch);
 		pch = strtok (NULL, ",");
-		m.y = atoi(pch);
+		m->y = atoi(pch);
 		moves.push_back(m);
 		pch = strtok (NULL, ",");
 	}
+	movesNum = moves.size();
 }
 
 void parseFile(const char *fileName)
@@ -103,13 +107,13 @@ double distance(int x1, int y1, int x2, int y2)
 
 void calculatePullForPoint(int x, int y)
 {
-	double pull, pull1 = 0.0, pull2 = 0.0;
+	double pull;
 	long deltaX, deltaY;
 	for (int i=0; i<moves.size(); ++i)
 	{
-		deltaX = moves[i].x - x;
+		deltaX = moves[i]->x - x;
 		deltaX = deltaX * deltaX;
-		deltaY = moves[i].y - y;
+		deltaY = moves[i]->y - y;
 		deltaY = deltaY * deltaY;
 		if (deltaX > 0 || deltaY > 0)
 		{
@@ -119,22 +123,18 @@ void calculatePullForPoint(int x, int y)
 		{
 			pull = 1000000;	// infinity approximation
 		}
-		if (moves[i].playerNum == 1)
+		if (moves[i]->playerNum == 1)
 		{
-			pull1 += pull;
+			matrix1[x][y] += pull;
 		}
 		else
 		{
-			pull2 += pull;
+			matrix2[x][y] += pull;
 		}
 	}
-	if (pull1 > pull2)
-		player1Score += 1;
-	else if (pull2 > pull1)
-		player2Score += 1;
 }
 
-void calculatePull()
+void calculateCurrentMoves()
 {
 	for (int x=0; x<1000; ++x)
 	{
@@ -145,112 +145,42 @@ void calculatePull()
 	}
 }
 
-bool isValidMove(int x, int y)
+void calculatePull(Move *m)
 {
-	for (int i=0; i<moves.size(); ++i)
+	long deltaX, deltaY;
+	double pull, pull1 = 0.0, pull2 = 0.0;
+	for (int x=0; x<1000; ++x)
 	{
-		if (moves[i].x == x && moves[i].y == y)
-			return false;
-	}
-	return true;
-}
-
-/*
-void testRandom()
-{
-	int bestp1score = 0; int bestp2score = 0;
-	int xtest, ytest;
-	for (int i=0; i<10; ++i)
-	{
-		player1Score = 0;
-		player2Score = 0;
-		xtest = rand() % 1000;
-		ytest = rand() % 1000;
-		if (isValidMove(xtest, ytest))
+		for (int y=0; y<1000; ++y)
 		{
-			std::cout << xtest << " " << ytest << std::endl;
-			Move m;
-			m.playerNum = currPlayer;
-			m.x = xtest;
-			m.y = ytest;
-			moves.push_back(m);
-			calculatePull();
-			if (currPlayer == 1 && player1Score > bestp1score)
+			deltaX = m->x - x;
+			deltaX = deltaX * deltaX;
+			deltaY = m->y - y;
+			deltaY = deltaY * deltaY;
+			if (deltaX > 0 || deltaY > 0)
 			{
-				bestp1score = player1Score;
-				outX = xtest;
-				outY = ytest;
+				pull = 1.0 / (deltaX + deltaY);
 			}
-			else if (currPlayer == 2 && player2Score > bestp2score)
+			else
 			{
-				bestp2score = player2Score;
-				outX = xtest;
-				outY = ytest;
+				pull = 1000000;	// infinity approximation
 			}
-			std::cout << "p1 score is " << player1Score << " p2 score is " << player2Score << std::endl;
-			moves.pop_back();
+
+			if (currPlayer == 1)
+			{
+				 pull1 += matrix1[x][y];
+			}
+			else
+			{
+				pull2 += matrix2[x][y];
+			}
+			
+			if (pull1 > pull2)
+				player1Score += 1;
+			else if (pull2 > pull1)
+				player2Score += 1;
 		}
 	}
-}
-*/
-
-void testCircleStrategy()
-{
-	int bestp1score = 0; int bestp2score = 0;
-	int xtest, ytest;
-	for (double deg=0.0; deg < 360.0; deg+= 36.0)
-	{
-		player1Score = 0;
-		player2Score = 0;
-		double x = 300 * cos(deg * PI / 180.0);
-		double y = 300 * sin(deg * PI / 180.0);
-		xtest = 500 + (int)x;
-		ytest = 500 + (int)y;
-		if (isValidMove(xtest, ytest))
-		{
-			Move m;
-			m.playerNum = currPlayer;
-			m.x = xtest;
-			m.y = ytest;
-			moves.push_back(m);
-			calculatePull();
-			if (currPlayer == 1 && player1Score > bestp1score)
-			{
-				bestp1score = player1Score;
-				outX = xtest;
-				outY = ytest;
-			}
-			else if (currPlayer == 2 && player2Score > bestp2score)
-			{
-				bestp2score = player2Score;
-				outX = xtest;
-				outY = ytest;
-			}
-			//std::cout << "p1 score is " << player1Score << " p2 score is " << player2Score << std::endl;
-			moves.pop_back();
-		}
-	}
-}
-
-void goToCenter()
-{
-	int x = 500, y = 500;
-	if (isValidMove(x, y))
-	{
-		outX = x;
-		outY = y;
-		return;
-	}
-	x = 501;
-	y = 501;
-	if (isValidMove(x, y))
-	{
-		outX = x;
-		outY = y;
-		return;
-	}
-	outX = 499;
-	outY = 499;
 }
 
 void runTestMoves()
@@ -262,21 +192,59 @@ void runTestMoves()
 	{
 		player1Score = 0;
 		player2Score = 0;
-		moves.push_back(testMoves[i]);
-		calculatePull();
+		//moves[movesNum] = testMoves[i];
+		calculatePull(testMoves[i]);
 		if (!outputString.empty())
 			outputString += ",";
 
-		sprintf(tmpstr, "%d,%d,%d,%d", testMoves[i].x, testMoves[i].y, player1Score, player2Score);
+		sprintf(tmpstr, "%d,%d,%d,%d", testMoves[i]->x, testMoves[i]->y, player1Score, player2Score);
 		outputString += tmpstr;
 
-		moves.pop_back();
+		//moves.pop_back();
 	}
+}
+
+void initMatrix()
+{
+	int x, y;
+	for (x=0; x<1000; ++x)
+	{
+		for (y=0; y<1000; ++y)
+		{
+			matrix1[x][y] = 0.0;
+			matrix2[x][y] = 0.0;
+		}
+	}
+}
+
+void loadCalculatedValues()
+{
+	int x, y;
+	std::ifstream input("matrix.txt");
+	if (input)
+	{
+		for (x=0; x<1000; ++x)
+		{
+			for (y=0; y<1000; ++y)
+			{
+				input >> matrix1[x][y] >> matrix2[x][y];
+			}
+		}
+		input.close();
+	}
+	else
+	{
+		initMatrix();
+	}
+
 }
 
 int main(int argc, char* argv[])
 {
+	//loadCalculatedValues();
 	parseFile("input.txt");
+	initMatrix();
+	calculateCurrentMoves();
 	runTestMoves();
 	outputFile("output.txt");
 	//std::cout << "p1 score is " << player1Score << " p2 score is " << player2Score << std::endl;
