@@ -2,29 +2,21 @@ import random
 import math
 import copy
 import itertools
-from FastMoves import FastMoves
 
 def playMove(state):
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
   points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
   innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
   points = innerPoints + points
+  (x, y) = getBestMove(state.moves, points)
+  return (x, y)
 
-  #moves = populateMoves(state)
-  #bestMove = -1
-  #bestScore = -1
-  #print('Points to process: ' + str(len(points)))
-  #for point in points:
-  #  print('Processing: ' + str(point))
-  #  tempMoves = copy.deepcopy(moves)
-  #  tempMoves.addMove(state.playerId, point[0], point[1])
-  #  score = moves.score
-  #  if score > bestScore:
-  #    bestScore = score
-  #    bestMove = point
-  index = random.randint(0,len(points)-1)
-  bestMove = points[index]
-  return bestMove
+def getBestMove(previousMoves, points):
+  
+  tmp='400,500,404,472,404,528,420,440\n1,1,0,0,2,500,500'
+  p = subprocess.Popen([".\Voronoi.exe"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+  output = p.communicate(tmp)[0]
+  return output
 
 def populateMoves(state):
   opponentId = 1 if state.playerId == 2 else 2
@@ -44,7 +36,7 @@ def getPointsOnCircle(center, radius, boardSize, excludeMoves = []):
   return [(x, y)
           for x in range(0, boardSize)
           for y in range(0, boardSize)
-          if abs(getDistance(center, (x, y)) - radius) < 2
+          if abs(getDistance(center, (x, y)) - radius) <= 0
           if (x,y) not in excludeMoves]
 
 def getDistance((x1, y1), (x2, y2)):
