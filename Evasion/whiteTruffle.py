@@ -20,7 +20,7 @@ def readSocket(sock, timeout=0):
     elif chunk == '':
       raise RuntimeError('socket connection broken')
     inputData = inputData + chunk
-    if inputData[-1] == '\n':
+    if eom in inputData:
       break
   if inputData == '':
     return eom
@@ -73,6 +73,8 @@ def stripNewLine(msg):
   return msg
 
 if __name__=='__main__':
+  from hunter import playHunter
+
   try:
     # Return Team Name
     question = readSocket(s, 1)
@@ -85,11 +87,18 @@ if __name__=='__main__':
 
     # Play Game
     while True:
-      data = readSocket(s)
-      if data == eom:
+      data = ''
+      while True:
+        dataNew = readSocket(s)
+        data += dataNew + '\n'
+        if '.' in data:
+          break
+
+      if data == '':
         break
-      gameData = parseData(data)
-      makeMove(s, 'SE')
+      (movesToNextWallBuild, hunterLocation, preyLocation, remainingTime) = parseData(data)
+      move = playHunter(movesToNextWallBuild, hunterLocation, preyLocation, remainingTime)
+      makeMove(s, move)
   finally:
     print('Close socket')
     s.close()
