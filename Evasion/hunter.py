@@ -61,26 +61,36 @@ def createVerticalWall(hunterLocation, walls):
   return [(x, minY), (x, maxY)]
 
 def createHorizontalWall(hunterLocation, walls):
-  x = hunterLocation[0]
+  y = hunterLocation[1]
   minX = getWallCoordinate(hunterLocation, walls, 'min', 'x')
   maxX = getWallCoordinate(hunterLocation, walls, 'max', 'x')
-  return [(minX, x), (maxX, x)]
+  return [(minX, y), (maxX, y)]
 
-def getWallCoordinate(hunterLocation, wall, minMax, xY):
+def getWallCoordinate(hunterLocation, walls, minMax, xY):
+  (xHunter, yHunter) = hunterLocation
   if minMax == 'min':
-    if wall == []:
-      return 0
-    else:
-      if xY == 'x':
-        # Walls that would intersect
-
-      elif xY == 'y':
-        pass
-      print(wall)
-      raw_input(hunterLocation)
+    if xY == 'x':
+      possibleX = [x1+1
+                   for (_, (x1, y1), (x2, y2)) in walls
+                   if yHunter in range(y1, y2+1)
+                   if xHunter > x1]
+      return max(possibleX+[0])
+    elif xY == 'y':
+      possibleY = [y1+1
+                   for (_, (x1, y1), (x2, y2)) in walls
+                   if xHunter in range(x1, x2+1)
+                   if yHunter > y1]
+      return max(possibleY+[0])
   elif minMax == 'max':
-    if wall == []:
-      return 499
-    else:
-      print(wall)
-      raw_input(hunterLocation)
+    if xY == 'x':
+      possibleX = [x1-1
+                   for (_, (x1, y1), (x2, y2)) in walls
+                   if yHunter in range(y1, y2+1)
+                   if xHunter < x1]
+      return min(possibleX+[499])
+    elif xY == 'y':
+      possibleY = [y1-1
+                   for (_, (x1, y1), (x2, y2)) in walls
+                   if xHunter in range(x1, x2+1)
+                   if yHunter < y1]
+      return min(possibleY+[499])
