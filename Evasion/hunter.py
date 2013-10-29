@@ -1,10 +1,11 @@
 import math
 import operator
+import copy
 
 def playHunter(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, hunterLocation, preyLocation, remainingTime):
   direction = hunterDirection
   relativeLocationOfPrey = getRelativeLocation(hunterLocation, preyLocation)
-  tolerance = range(1,100)
+  tolerance = {2, 5, 12, 30}
 
   wallToCreate = []
   wallToDestroy = []
@@ -31,21 +32,18 @@ def playHunter(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, h
   if getYDistance(hunterLocation, preyLocation) in tolerance or getYDistance(hunterLocation, preyLocation) in tolerance:
     if hunterDirection == 'NE' and relativeLocationOfPrey == 'NE':
       wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
-    elif hunterDirection == 'SE' and relativeLocationOfPrey == 'SE':
+    #elif hunterDirection == 'SE' and relativeLocationOfPrey == 'SE':
+    #  wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
+    elif hunterDirection == 'SW' and relativeLocationOfPrey == 'SW':
       wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
     elif hunterDirection == 'NW' and relativeLocationOfPrey == 'NW':
       wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
-    elif hunterDirection == 'SW' and relativeLocationOfPrey == 'SW':
-      wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
 
-  if wallToCreate != []:
-    beforeArea = getPreyArea(preyLocation, walls)
-    afterArea = getPreyArea(preyLocation, walls, wallToCreate)
-    print(beforeArea)
-    print(afterArea)
-    raw_input(abs(beforeArea-afterArea)/beforeArea)
-    #if abs(beforeArea-afterArea)/beforeArea < .9:
-    #  wallToCreate = []
+  #if wallToCreate != []:
+  #  beforeArea = getPreyArea(preyLocation, walls)
+  #  afterArea = getPreyArea(preyLocation, walls, wallToCreate)
+  #  if abs(beforeArea-afterArea)/float(beforeArea) < 0:
+  #    wallToCreate = []
   return (direction, wallToCreate, wallToDestroy)
 
 def getWallThatMinimizesArea(hunterLocation, preyLocation, walls):
@@ -59,6 +57,7 @@ def getWallThatMinimizesArea(hunterLocation, preyLocation, walls):
     return horizontalWall
 
 def getPreyArea(preyLocation, walls, newWall = []):
+  walls = copy.deepcopy(walls)
   if newWall != []:
     walls += [(-1, newWall[0], newWall[1])]
   (xPrey, yPrey) = preyLocation

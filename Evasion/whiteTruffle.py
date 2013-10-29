@@ -5,8 +5,9 @@ port = 4567
 maxlen = 999999
 eom = '\n'
 print(sys.argv)
-if len(sys.argv) > 1:
-  port = int(sys.argv[1])
+if len(sys.argv) > 2:
+  port = int(sys.argv[2])
+HP = sys.argv[1]
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', port))
@@ -100,6 +101,7 @@ def stripNewLine(msg):
 
 if __name__=='__main__':
   from hunter import playHunter
+  from prey import playPrey
 
   try:
     # Return Team Name
@@ -122,7 +124,12 @@ if __name__=='__main__':
 
       if data == '':
         break
-      (direction, wallToCreate, wallToDestroy) = playHunter(*parseData(data, M))
+      if HP == 'H':
+        (direction, wallToCreate, wallToDestroy) = playHunter(*parseData(data, M))
+      else:
+        direction = playPrey(*parseData(data, M))
+        wallToCreate = []
+        wallToDestroy = []
       makeMove(s, direction, wallToCreate, wallToDestroy)
   finally:
     print('Close socket')
