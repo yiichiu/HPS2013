@@ -38,7 +38,7 @@ def sendSocket(sock, msg):
     totalsent = totalsent + sent
   iSaid(msg)
 
-def parseData(msg):
+def parseData(msg, maxNumberOfWalls):
   msgList = msg.split('\n')
   if msgList[0] != 'Walls':
     return msg
@@ -61,7 +61,7 @@ def parseData(msg):
 
   # Parse Remaining Time
   remainingTime = float(msgList[6+wallOffset])
-  return (walls, movesToNextWallBuild, hunterDirection, hunterLocation, preyLocation, remainingTime)
+  return (walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, hunterLocation, preyLocation, remainingTime)
 
 def parseWallString(wall):
   wall = wall.split(' ')
@@ -122,7 +122,7 @@ if __name__=='__main__':
 
       if data == '':
         break
-      (direction, wallToCreate, wallToDestroy) = playHunter(*parseData(data))
+      (direction, wallToCreate, wallToDestroy) = playHunter(*parseData(data, M))
       makeMove(s, direction, wallToCreate, wallToDestroy)
   finally:
     print('Close socket')
