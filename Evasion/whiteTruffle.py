@@ -42,23 +42,49 @@ def parseData(msg):
   msgList = msg.split('\n')
   if msgList[0] != 'Walls':
     return msg
+
   # Parse Walls
   wallOffset = int(msgList[1])
+  walls = [parseWallString(wall) for wall in msgList[2:2+wallOffset]]
 
   # Parse Moves to Next Wall Build
   assert(msgList[2+wallOffset] == 'Moves to Next Wall Build')
-  movesToNextWallBuild = msgList[3+wallOffset]
+  movesToNextWallBuild = int(msgList[3+wallOffset])
 
   # Parse Hunter and Prey Location
-  hunterLocation = msgList[4+wallOffset]
-  preyLocation = msgList[5+wallOffset]
+  hunterData = msgList[4+wallOffset]
+  hunterDirection = hunterData.split(' ')[1]
+  hunterLocation = cleanListString(hunterData.split(' ')[2])
+
+  preyData = msgList[5+wallOffset]
+  preyLocation = cleanListString(preyData.split(' ')[1])
 
   # Parse Remaining Time
-  remainingTime = msgList[6+wallOffset]
-  return (movesToNextWallBuild, hunterLocation, preyLocation, remainingTime)
+  remainingTime = float(msgList[6+wallOffset])
+  return (walls, movesToNextWallBuild, hunterDirection, hunterLocation, preyLocation, remainingTime)
 
-def makeMove(socket, direction):
-  sendSocket(socket,'%s'%(direction))
+def parseWallString(wall):
+  wall = wall.split(' ')
+  wallNumber = int(wall[0])
+  wall = cleanListString(wall[1])
+  wallStart = wall[0:2]
+  wallEnd = wall[2:]
+  return (wallNumber, wallStart, wallEnd)
+
+def cleanListString(listString):
+  listString = listString.replace('(', '')
+  listString = listString.replace(')', '')
+  return tuple(int(x) for x in listString.split(','))
+
+def makeMove(socket, direction, wallToCreate, wallToRemove):
+  if wallToCreate != []:
+    (x1, y1) = wallToCreate[0]
+    (x2, y2) = wallToCreate[1]
+    sendSocket(socket,'%sw(%d,%d),(%d,%d)'%(direction, x1, y1, x2, y2))
+  elif wallToRemove != []:
+    sendSocket(socket,'%sx%d'%(direction, wallToRemove))
+  else:
+    sendSocket(socket,'%s'%(direction))
 
 def serverSaid(msg):
   msg = stripNewLine(msg)
@@ -96,9 +122,8 @@ if __name__=='__main__':
 
       if data == '':
         break
-      (movesToNextWallBuild, hunterLocation, preyLocation, remainingTime) = parseData(data)
-      move = playHunter(movesToNextWallBuild, hunterLocation, preyLocation, remainingTime)
-      makeMove(s, move)
+      (direction, wallToCreate, wallToDestroy) = playHunter(*parseData(data))
+      makeMove(s, direction, wallToCreate, wallToDestroy)
   finally:
     print('Close socket')
     s.close()
