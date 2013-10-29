@@ -7,7 +7,7 @@ def playHunter(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, h
 
   wallToCreate = []
   wallToDestroy = []
-  if getXDistance(hunterLocation, preyLocation) in range (2, 3):
+  if getXDistance(hunterLocation, preyLocation) == 2:
     if hunterDirection == 'SE' and relativeLocationOfPrey == 'NE':
       wallToCreate = createVerticalWall(hunterLocation, walls)
     elif hunterDirection == 'SE' and relativeLocationOfPrey == 'SW':
@@ -16,10 +16,8 @@ def playHunter(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, h
       wallToCreate = createVerticalWall(hunterLocation, walls)
     elif hunterDirection == 'SW' and relativeLocationOfPrey == 'SE':
       wallToCreate = createHorizontalWall(hunterLocation, walls)
-    #else:
-    #  wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
 
-  if getYDistance(hunterLocation, preyLocation) in range(2, 3):
+  if getYDistance(hunterLocation, preyLocation) == 2:
     if hunterDirection == 'NE' and relativeLocationOfPrey == 'NW':
       wallToCreate = createHorizontalWall(hunterLocation, walls)
     elif hunterDirection == 'NE' and relativeLocationOfPrey == 'SW':
@@ -28,11 +26,6 @@ def playHunter(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, h
       wallToCreate = createHorizontalWall(hunterLocation, walls)
     elif hunterDirection == 'NW' and relativeLocationOfPrey == 'SW':
       wallToCreate = createVerticalWall(hunterLocation, walls)
-    #else:
-    #  wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
-
-  if maxNumberOfWalls-len(walls) < 3 and (getXDistance(hunterLocation, preyLocation) in range (2, 3) or getYDistance(hunterLocation, preyLocation) in range (2, 3)):
-    wallToCreate = getWallThatMinimizesArea(hunterLocation, preyLocation, walls)
   return (direction, wallToCreate, wallToDestroy)
 
 def getWallThatMinimizesArea(hunterLocation, preyLocation, walls):
