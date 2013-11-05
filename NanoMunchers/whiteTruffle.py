@@ -1,6 +1,7 @@
 import socket
 import random
 import sys
+import re
 
 programs = ["dlru", "dlur", "drlu", "drul", "dulr", "durl", "ldru", "ldur", "lrdu", "lrud", "ludr", "lurd", "rdlu", "rdul", "rldu", "rlud", "rudl", "ruld", "udlr", "udrl", "uldr", "ulrd", "urdl", "urld"];
 
@@ -122,8 +123,10 @@ if __name__ == '__main__':
             break
         (newlyMunched, liveMunchers, otherLiveMunchers, scores, remainingStuff) = parseStatus(status)
         munched.update(newlyMunched)
-        print "remaining munchers", remainingStuff[0]
+        print("remaining munchers", remainingStuff[0])
         send(s, randomMove(munched))
+  except:
+    raise
   finally:
     print('Close socket')
     s.close()
