@@ -138,8 +138,19 @@ if __name__ == '__main__':
         tracker.addNewMunchers(newlyPlacedMunchers, munched, newlyMunched, liveMunchers, otherLiveMunchers)
         munched.update(newlyMunched)
         print('TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        # Remove munched references in edges
+        for edge in edges:
+          keysToRemove = []
+          for (key, value) in edge.iteritems():
+            if value in munched:
+              keysToRemove +[key]
+          for key in range(0, len(keysToRemove)):
+            print(edge)
+            del edge[key]
+            print(edge)
+
         for muncher in tracker.munchers:
-          print(muncher.strategy)
+          print(muncher.getPredictedNextNode(edges))
         print("remaining munchers", remainingStuff[0])
         send(s, randomMove(munched))
   except:

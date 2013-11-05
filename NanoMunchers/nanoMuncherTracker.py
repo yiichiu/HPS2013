@@ -108,3 +108,9 @@ class Munchers:
 
   def updateStrategy(self, strategy):
     self.strategy = strategy
+
+  def getPredictedNextNode(self, edges):
+    possibleLocations = edges[self.lastLocation]
+    print(self.strategy)
+    print(possibleLocations)
+    return None
