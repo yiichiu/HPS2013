@@ -1,7 +1,9 @@
 import socket
+import copy
 import random
 import sys
 import re
+import copy
 
 programs = ["dlru", "dlur", "drlu", "drul", "dulr", "durl", "ldru", "ldur", "lrdu", "lrud", "ludr", "lurd", "rdlu", "rdul", "rldu", "rlud", "rudl", "ruld", "udlr", "udrl", "uldr", "ulrd", "urdl", "urld"];
 
@@ -63,11 +65,19 @@ def parseData(data):
         
 def parseStatus(status):
     munched = set()
+    newlyPlacedMunchers = []
     liveMunchers = []
     otherLiveMunchers = []
     lines = status.split()
     if lines[0] != '0':
         [num, munchedNodes] = lines[0].split(':')
+        newlyPlacedMunchers = copy.deepcopy(munchedNodes)
+        newlyPlacedMunchers = newlyPlacedMunchers.split(',')
+        newlyPlacedMunchers = [newlyPlaced
+                               for newlyPlaced in newlyPlacedMunchers
+                               if '/' in newlyPlaced]
+        newlyPlacedMunchers = [(int(mov.split('/')[0]), int(mov.split('/')[1]))
+                               for mov in newlyPlacedMunchers]
         munchedNodes = map(int, re.split("[/,]", munchedNodes))
         for i in xrange(int(num)):
             munched.add(munchedNodes[i])
@@ -84,7 +94,7 @@ def parseStatus(status):
             otherLiveMunchers.append(otherMunchers[i])
     scores = map(int, lines[3].split(','))
     remainingStuff = map(int, lines[4].split(','))
-    return (munched, liveMunchers, otherLiveMunchers, scores, remainingStuff)
+    return (newlyPlacedMunchers, munched, liveMunchers, otherLiveMunchers, scores, remainingStuff)
 
 def randomMove(munched):
     rand = random.randint(0, remainingStuff[0])
@@ -104,6 +114,8 @@ def randomMove(munched):
     return nextMove
 
 if __name__ == '__main__':
+  from nanoMuncherTracker import NanoMuncherTracker
+
   port = 4567
   print(sys.argv)
   if len(sys.argv) > 1:
@@ -114,6 +126,7 @@ if __name__ == '__main__':
   try:
     send(s, 'whiteTruffle')
     (nodes, edges) = parseData(receive(s))
+    tracker = NanoMuncherTracker(edges)
   
     munched = set()
     while(True):
@@ -121,8 +134,12 @@ if __name__ == '__main__':
         print(status)
         if status in ['0', '']:
             break
-        (newlyMunched, liveMunchers, otherLiveMunchers, scores, remainingStuff) = parseStatus(status)
+        (newlyPlacedMunchers, newlyMunched, liveMunchers, otherLiveMunchers, scores, remainingStuff) = parseStatus(status)
+        tracker.addNewMunchers(newlyPlacedMunchers, munched, newlyMunched, liveMunchers, otherLiveMunchers)
         munched.update(newlyMunched)
+        print('TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        for muncher in tracker.munchers:
+          print(muncher.strategy)
         print("remaining munchers", remainingStuff[0])
         send(s, randomMove(munched))
   except:
