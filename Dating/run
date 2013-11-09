@@ -1,0 +1,3 @@
+java -jar DatingGame.jar M 4 4568 &
+sleep 1
+python whiteTruffle.py 4568
