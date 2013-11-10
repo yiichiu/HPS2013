@@ -1,6 +1,7 @@
 import socket
 import copy
 import sys
+import random
 eom = '<EOM>\n'
 
 def send(s, msg):
@@ -26,14 +27,25 @@ def receive(s, timeout=0):
     msg = msg.replace(eom, '')
     return msg
 
-def parseCandidates(rawData):
+def getPlayerTypeAndNumberOfAttributes(rawData, playerTypeToConfirm = None):
   rawData = rawData.split('\n')
 
   # Check the header Data
   headerData = rawData[0].split(' ')
   playerType = headerData[0]
   numberOfAttributes = int(headerData[1])
-  assert(playerType == 'M')
+
+  if playerTypeToConfirm is not None:
+    assert(playerType == playerTypeToConfirm)
+  return (playerType, numberOfAttributes)
+
+def parseCandidates(rawData, numberOfAttributes):
+  rawData = rawData.split('\n')
+
+  # Check if first line is header
+  headerRow = rawData[0]
+  if headerRow[0] in ('M', 'P'):
+    rawData = rawData[1:]
 
   # Parse Candidates
   candidates = [(
@@ -44,9 +56,16 @@ def parseCandidates(rawData):
                   ],
                   float(attributes.split(' ')[numberOfAttributes])
                 )
-                for attributes in rawData[1:]
+                for attributes in rawData
                 if attributes != '']
   return candidates
+
+def encodeCandidate(candidate):
+  candidate = str(candidate)
+  candidate = candidate.replace('[', '')
+  candidate = candidate.replace(']', '')
+  candidate = candidate.replace(',', '')
+  return candidate
 
 if __name__ == '__main__':
   port = 4567
@@ -63,12 +82,24 @@ if __name__ == '__main__':
     send(s, 'WhiteTruffle')
 
     # Read in data
-    while True:
-      rawData = receive(s)
-      if rawData == 'end':
-        break
+    rawData = receive(s)
+    (playerType, numberOfAttributes) = getPlayerTypeAndNumberOfAttributes(rawData)
 
-      candidates = parseCandidates(rawData)
+    while True:
+      if playerType == 'M':
+        # Play Matchmaker
+        candidates = parseCandidates(rawData, numberOfAttributes)
+        nextCandidate = [random.randint(0,1) for r in range(0, numberOfAttributes)]
+        
+        send(s, encodeCandidate(nextCandidate))
+      elif playerType == 'P':
+        pass
+      else:
+        raise Exception('Invalid Player Type')
+
+      rawData = receive(s)
+      if 'end' in rawData:
+        break
     
   except:
     raise
