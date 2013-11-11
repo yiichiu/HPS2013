@@ -1,5 +1,5 @@
 import operator
-from random import randint
+from random import randint, shuffle, choice
 from itertools import combinations_with_replacement, ifilter, permutations, islice
 
 def playRandom(candidates, numberOfAttributes):
@@ -16,25 +16,55 @@ def playBruteForce(candidates, numberOfAttributes):
   return nextCandidate
 
 def playSimulatedAnnealing(candidates, numberOfAttributes):
-  cumulativeDifferences = (float('Inf'), float('Inf'), -float('Inf'))
-  bestWeights = []
+  (bestWeights, cumulativeDifferences) = getBestWeights(candidates, [getRandomWeightSelection(numberOfAttributes)])
+  (currentBestWeights, currentCumulativeDifferences) = (bestWeights, cumulativeDifferences)
 
-  while True:
-    randomWeightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(10000)]
+  maxTemperature = 4000
+  for k in range(maxTemperature):
+    temperature = float(k)/maxTemperature
+    if randint(0,1) > temperature:
+      weightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(10)]
+    else:
+      weightSelection = getNeighborWeightSelecion(bestWeights)
+
     #weightSelection = list(set(getPermutationOfWeights(randomWeightSelection)))
-    (thisBestWeights, thisCumulativeDifference) = getBestWeights(candidates, randomWeightSelection)
-    if (cumulativeDifferences[0] > thisCumulativeDifference[0]
-        and cumulativeDifferences[1] > thisCumulativeDifference[1]
-        and cumulativeDifferences[2] < thisCumulativeDifference[2]):
+    (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, weightSelection)
+    print(thisCumulativeDifferences)
+
+    if cumulativeDifferences[0] > thisCumulativeDifferences[0]:
       bestWeights = thisBestWeights
-      cumulativeDifferences = thisCumulativeDifference
-      print(cumulativeDifferences)
-    if cumulativeDifferences[1] < 0.2 and cumulativeDifferences[2] < 0.1:
-      break
+      cumulativeDifferences = thisCumulativeDifferences
+
+    if cumulativeDifferences[1] < 0.1 and cumulativeDifferences[2] > -0.1:
+      possibleCandidates = getFilteredCandidateList(candidates, bestWeights)
+      if len(possibleCandidates) > 0:
+        break
 
   possibleCandidates = getFilteredCandidateList(candidates, bestWeights)
   nextCandidate = list(possibleCandidates[0])
   return nextCandidate
+
+def getNeighborWeightSelecion(weightSelection):
+  weightSelection = weightSelection[0]
+  positiveWeightsIndex = [i for (i,w) in enumerate(weightSelection) if w > 0]
+  negativeWeightsIndex = [i for (i,w) in enumerate(weightSelection) if w < 0]
+  if len(positiveWeightsIndex) > 1:
+    (index1, index2) = getTwoValidWeights(weightSelection, positiveWeightsIndex)
+  else:
+    (index1, index2) = getTwoValidWeights(weightSelection, negativeWeightsIndex)
+  weightSelection = list(weightSelection)
+  weightSelection[index1] += 0.01
+  weightSelection[index2] -= 0.01
+  return [tuple(weightSelection)]
+
+def getTwoValidWeights(weights, weightIndex):
+  while True:
+    weightIndex1 = choice(weightIndex)
+    weightIndex2 = choice(weightIndex)
+    weight1 = abs(weights[weightIndex1])
+    weight2 = abs(weights[weightIndex2])
+    if weight1 != 1 and weight2 != 1 and weightIndex1 != weightIndex2:
+      return (weightIndex1, weightIndex2)
 
 def getRandomWeightSelection(numberOfAttributes):
   numberOfNegativeWeights = randint(1, numberOfAttributes-1)
@@ -42,7 +72,9 @@ def getRandomWeightSelection(numberOfAttributes):
 
   negativeWeights = getRandomWeightSelection_(numberOfNegativeWeights, numberOfAttributes, True)
   positiveWeights = getRandomWeightSelection_(numberOfPositiveWeights, numberOfAttributes, False)
-  weights = tuple(positiveWeights+negativeWeights)
+  weights = positiveWeights+negativeWeights
+  shuffle(weights)
+  weights = tuple(weights)
   return weights
 
 def getRandomWeightSelection_(numberOfWeights, numberOfAttributes, isNegative):
