@@ -91,6 +91,7 @@ if __name__ == '__main__':
         candidates = parseCandidates(rawData, numberOfAttributes)
         #nextCandidate = matchmaker.playRandom(candidates, numberOfAttributes)
         nextCandidate = matchmaker.playBruteForce(candidates, numberOfAttributes)
+        #nextCandidate = matchmaker.playSimulatedAnnealing(candidates, numberOfAttributes)
         
         send(s, encodeCandidate(nextCandidate))
       elif playerType == 'P':
