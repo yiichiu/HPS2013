@@ -1,7 +1,6 @@
 import socket
 import copy
 import sys
-import random
 eom = '<EOM>\n'
 
 def send(s, msg):
@@ -68,6 +67,7 @@ def encodeCandidate(candidate):
   return candidate
 
 if __name__ == '__main__':
+  import matchmaker
   port = 4567
   print(sys.argv)
   if len(sys.argv) > 1:
@@ -89,7 +89,8 @@ if __name__ == '__main__':
       if playerType == 'M':
         # Play Matchmaker
         candidates = parseCandidates(rawData, numberOfAttributes)
-        nextCandidate = [random.randint(0,1) for r in range(0, numberOfAttributes)]
+        #nextCandidate = matchmaker.playRandom(candidates, numberOfAttributes)
+        nextCandidate = matchmaker.playBruteForce(candidates, numberOfAttributes)
         
         send(s, encodeCandidate(nextCandidate))
       elif playerType == 'P':

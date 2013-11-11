@@ -1,4 +1,6 @@
 import copy
+import random
+import operator
 
 class NanoMuncherTracker:
 
@@ -111,6 +113,29 @@ class Munchers:
 
   def getPredictedNextNode(self, edges):
     possibleLocations = edges[self.lastLocation]
-    print(self.strategy)
-    print(possibleLocations)
+    deadEnds = set()
+
+    for (key, value) in sorted(self.strategy.iteritems(), key=operator.itemgetter(1), reverse=True):
+      if len(value) == 3:
+        if key in possibleLocations.keys():
+          return possibleLocations[key]
+        else:
+          deadEnds.add(key)
+      elif len(value) == 2:
+        if len(deadEnds) > 0:
+          if key in possibleLocations.keys():
+            return possibleLocations[key]
+          else:
+            deadEnds.add(key)
+      elif len(value) == 1:
+        if len(deadEnds) > 1:
+          if key in possibleLocations.keys():
+            return possibleLocations[key]
+          else:
+            deadEnds.add(key)
+
+      remaining = set(possibleLocations.keys()).intersection(deadEnds) 
+      if len(remaining) > 0 and len(remainig) < 3:
+        return random.choice(possibleLocations.values())
+
     return None

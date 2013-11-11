@@ -4,6 +4,7 @@ import random
 import sys
 import re
 import copy
+import math
 
 programs = ["dlru", "dlur", "drlu", "drul", "dulr", "durl", "ldru", "ldur", "lrdu", "lrud", "ludr", "lurd", "rdlu", "rdul", "rldu", "rlud", "rudl", "ruld", "udlr", "udrl", "uldr", "ulrd", "urdl", "urld"];
 
@@ -96,12 +97,18 @@ def parseStatus(status):
     remainingStuff = map(int, lines[4].split(','))
     return (newlyPlacedMunchers, munched, liveMunchers, otherLiveMunchers, scores, remainingStuff)
 
-def randomMove(munched):
-    rand = random.randint(0, remainingStuff[0])
-    nextMove = str(rand)
+def randomMove(munched, nodesToPlace):
+    rand = int(random.randint(math.floor(remainingStuff[0]*0.5), remainingStuff[0]))
+    print(rand)
+    nextMove = str(rand+len(nodesToPlace))
     if rand == 0:
         return nextMove
     nextMove += ':'
+    for node in nodesToPlace:
+      if nodesToPlace in munched:
+        continue
+      munched.add(node)
+      nextMove += '{0}/{1},'.format(node, programs[random.randint(1, 24) - 1])
     for i in xrange(rand):
         randNode = random.randint(1, len(nodes)) - 1
         while randNode in munched:
@@ -137,22 +144,23 @@ if __name__ == '__main__':
         (newlyPlacedMunchers, newlyMunched, liveMunchers, otherLiveMunchers, scores, remainingStuff) = parseStatus(status)
         tracker.addNewMunchers(newlyPlacedMunchers, munched, newlyMunched, liveMunchers, otherLiveMunchers)
         munched.update(newlyMunched)
-        print('TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
         # Remove munched references in edges
         for edge in edges:
           keysToRemove = []
           for (key, value) in edge.iteritems():
             if value in munched:
-              keysToRemove +[key]
-          for key in range(0, len(keysToRemove)):
-            print(edge)
+              keysToRemove = keysToRemove + [key]
+          for key in keysToRemove:
             del edge[key]
-            print(edge)
 
+        nodesToPlace = []
         for muncher in tracker.munchers:
-          print(muncher.getPredictedNextNode(edges))
+          nodeToPlace = muncher.getPredictedNextNode(edges)
+          if nodeToPlace is not None:
+            nodesToPlace += [nodeToPlace]
         print("remaining munchers", remainingStuff[0])
-        send(s, randomMove(munched))
+        send(s, randomMove(munched, nodesToPlace))
   except:
     raise
   finally:
