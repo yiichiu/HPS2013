@@ -1,6 +1,6 @@
 import operator
 from random import randint, shuffle, choice
-from itertools import combinations_with_replacement, ifilter, permutations, islice
+from itertools import combinations_with_replacement, ifilter, permutations, islice, combinations
 
 def playRandom(candidates, numberOfAttributes):
   nextCandidate = [randint(0,1) for r in range(0, numberOfAttributes)]
@@ -16,26 +16,30 @@ def playBruteForce(candidates, numberOfAttributes):
   return nextCandidate
 
 def playSimulatedAnnealing(candidates, numberOfAttributes):
+  singleCandidateParsing(candidates, numberOfAttributes)
   (bestWeights, cumulativeDifferences) = getBestWeights(candidates, [getRandomWeightSelection(numberOfAttributes)])
-  (currentBestWeights, currentCumulativeDifferences) = (bestWeights, cumulativeDifferences)
 
-  maxTemperature = 4000
+  maxTemperature = 10000
   for k in range(maxTemperature):
     temperature = float(k)/maxTemperature
     if randint(0,1) > temperature:
       weightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(10)]
     else:
-      weightSelection = getNeighborWeightSelecion(bestWeights)
+      shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
+      swappedWeights = swapPositiveNegative(candidates, shakenWeights, cumulativeDifferences)
+      weightSelection = getNeighborWeightSelecion(swappedWeights)
 
     #weightSelection = list(set(getPermutationOfWeights(randomWeightSelection)))
     (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, weightSelection)
-    print(thisCumulativeDifferences)
+    #print(thisCumulativeDifferences)
 
     if cumulativeDifferences[0] > thisCumulativeDifferences[0]:
       bestWeights = thisBestWeights
       cumulativeDifferences = thisCumulativeDifferences
+      print(bestWeights)
+      print(cumulativeDifferences)
 
-    if cumulativeDifferences[1] < 0.1 and cumulativeDifferences[2] > -0.1:
+    if cumulativeDifferences[0] < 0.05:
       possibleCandidates = getFilteredCandidateList(candidates, bestWeights)
       if len(possibleCandidates) > 0:
         break
@@ -44,27 +48,71 @@ def playSimulatedAnnealing(candidates, numberOfAttributes):
   nextCandidate = list(possibleCandidates[0])
   return nextCandidate
 
+def shakeZeros(candidates, bestWeights, cumulativeDifferences):
+  bestWeights = bestWeights[0]
+  zerosWeightsIndex = [i for (i,w) in enumerate(bestWeights) if abs(w) < 0.05]
+
+  shakenWeights = []
+  for i in zerosWeightsIndex:
+    shaken1 = list(bestWeights)
+    shaken2 = list(bestWeights)
+    shaken1[i] = 1
+    shaken2[i] = -1
+    shakenWeights += [tuple(shaken1)]
+    shakenWeights += [tuple(shaken2)]
+  (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, shakenWeights)
+  if cumulativeDifferences[0] > thisCumulativeDifferences[0]:
+    return thisBestWeights
+  return [bestWeights]
+
+def swapPositiveNegative(candidates, bestWeights, cumulativeDifferences):
+  bestWeights = tuple(bestWeights[0])
+  positiveWeightsIndex = [i for (i,w) in enumerate(bestWeights) if w > 0]
+  negativeWeightsIndex = [i for (i,w) in enumerate(bestWeights) if w < 0]
+
+  swappedWeights = []
+  for i in positiveWeightsIndex:
+    for j in negativeWeightsIndex:
+      swapped = list(bestWeights)
+      swapped[i], swapped[j] = 0.5 * swapped[j], swapped[i]
+      swappedWeights += [tuple(swapped)]
+  (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, swappedWeights)
+  if cumulativeDifferences[0] > thisCumulativeDifferences[0]:
+    return thisBestWeights
+  return [bestWeights]
+
+def singleCandidateParsing(candidates, numberOfAttributes):
+  for i in range(numberOfAttributes):
+    singleCandidate = tuple([100 if i == k else 0 for k in range(numberOfAttributes)])
+    test = getBestWeights(candidates, [singleCandidate])
+
 def getNeighborWeightSelecion(weightSelection):
   weightSelection = weightSelection[0]
-  positiveWeightsIndex = [i for (i,w) in enumerate(weightSelection) if w > 0]
-  negativeWeightsIndex = [i for (i,w) in enumerate(weightSelection) if w < 0]
+  positiveWeightsIndex = tuple([i for (i,w) in enumerate(weightSelection) if w > 0])
+  negativeWeightsIndex = tuple([i for (i,w) in enumerate(weightSelection) if w < 0])
+  
+  usedIndex = []
+  weights = []
+  negativeIndexSwaps = []
+  positiveIndexSwaps = []
   if len(positiveWeightsIndex) > 1:
-    (index1, index2) = getTwoValidWeights(weightSelection, positiveWeightsIndex)
-  else:
-    (index1, index2) = getTwoValidWeights(weightSelection, negativeWeightsIndex)
-  weightSelection = list(weightSelection)
-  weightSelection[index1] += 0.01
-  weightSelection[index2] -= 0.01
-  return [tuple(weightSelection)]
+    positiveIndexSwaps = list(combinations(positiveWeightsIndex, 2))
+  elif len(negativeWeightsIndex) > 1:
+    negativeIndexSwaps = list(combinations(negativeIndexSwaps, 2))
 
-def getTwoValidWeights(weights, weightIndex):
-  while True:
-    weightIndex1 = choice(weightIndex)
-    weightIndex2 = choice(weightIndex)
-    weight1 = abs(weights[weightIndex1])
-    weight2 = abs(weights[weightIndex2])
-    if weight1 != 1 and weight2 != 1 and weightIndex1 != weightIndex2:
-      return (weightIndex1, weightIndex2)
+  for (index1, index2) in positiveIndexSwaps+negativeIndexSwaps:
+    newWeight = getModifiedWeight(weightSelection, index1, index2)
+    weights += newWeight
+    usedIndex += [index1, index2]
+    positiveWeightsIndex = tuple([i for i in positiveWeightsIndex if i not in usedIndex])
+    negativeWeightsIndex = tuple([i for i in negativeWeightsIndex if i not in usedIndex])
+  return weights
+
+def getModifiedWeight(weight, index1, index2):
+  weight = list(weight)
+  weight[index1] += 0.01
+  weight[index2] -= 0.1
+  return [tuple(weight)]
 
 def getRandomWeightSelection(numberOfAttributes):
   numberOfNegativeWeights = randint(1, numberOfAttributes-1)
@@ -140,6 +188,8 @@ def getCumulativeDifference(candidates, testWeight):
   cumulativeDifference = sum(map(abs, difference))
   positiveCumulativeDifference = sum([x for x in difference if x > 0])
   negativeCumulativeDifference = sum([x for x in difference if x < 0])
+  #positiveCumulativeDifference = [x for (i,x) in enumerate(difference) if x > 0]
+  #negativeCumulativeDifference = [x for (i,x) in enumerate(difference) if x < 0]
   return (cumulativeDifference, positiveCumulativeDifference, negativeCumulativeDifference)
 
 def dotProduct(vector1, vector2):
