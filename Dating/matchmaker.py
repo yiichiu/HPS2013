@@ -19,21 +19,29 @@ def playSimulatedAnnealing(candidates, numberOfAttributes):
   singleCandidateParsing(candidates, numberOfAttributes)
   (bestWeights, cumulativeDifferences) = getBestWeights(candidates, [getRandomWeightSelection(numberOfAttributes)])
 
-  maxTemperature = 10000
+  maxTemperature = 100
   for k in range(maxTemperature):
-    temperature = float(k)/maxTemperature
-    if randint(0,1) > temperature:
-      weightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(10)]
+    temperature = (k/float(maxTemperature)) * 100
+    if randint(0, 100) > temperature:
+      weightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(maxTemperature-k)]
     else:
+      #if cumulativeDifferences[0] < 1.8:
+      #  minRotated = rotateMin(candidates, bestWeights, cumulativeDifferences)
+      #  shakenWeights = shakeZeros(candidates, minRotated, cumulativeDifferences)
+      #else:
+      #  shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
       shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
       swappedWeights = swapPositiveNegative(candidates, shakenWeights, cumulativeDifferences)
-      weightSelection = getNeighborWeightSelecion(swappedWeights)
+      #weightSelection = getNeighborWeightSelecion(swappedWeights)
+      weightSelection = swappedWeights
 
     #weightSelection = list(set(getPermutationOfWeights(randomWeightSelection)))
     (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, weightSelection)
     #print(thisCumulativeDifferences)
 
-    if cumulativeDifferences[0] > thisCumulativeDifferences[0]:
+    if (cumulativeDifferences[0] > thisCumulativeDifferences[0] and 
+        (cumulativeDifferences[1] > thisCumulativeDifferences[1] or
+         cumulativeDifferences[2] < thisCumulativeDifferences[2])):
       bestWeights = thisBestWeights
       cumulativeDifferences = thisCumulativeDifferences
       print(bestWeights)
@@ -48,16 +56,31 @@ def playSimulatedAnnealing(candidates, numberOfAttributes):
   nextCandidate = list(possibleCandidates[0])
   return nextCandidate
 
+def rotateMin(candidates, bestWeights, cumulativeDifferences):
+  bestWeights = bestWeights[0]
+  minIndicies = [i for (i,w) in enumerate(bestWeights) if abs(min(bestWeights)-w) < 0.01]
+
+  rotatedMin = []
+  for i in minIndicies:
+    for k in range(-10, 10):
+      rotated = list(bestWeights)
+      rotated[i] = k * 0.1
+      rotatedMin += [tuple(rotated)]
+  (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, rotatedMin)
+  if cumulativeDifferences[0] > thisCumulativeDifferences[0]:
+    return thisBestWeights
+  return [bestWeights]
+
 def shakeZeros(candidates, bestWeights, cumulativeDifferences):
   bestWeights = bestWeights[0]
-  zerosWeightsIndex = [i for (i,w) in enumerate(bestWeights) if abs(w) < 0.05]
+  zerosWeightsIndex = [i for (i,w) in enumerate(bestWeights) if abs(w) < 0.5]
 
   shakenWeights = []
   for i in zerosWeightsIndex:
     shaken1 = list(bestWeights)
     shaken2 = list(bestWeights)
-    shaken1[i] = 1
-    shaken2[i] = -1
+    shaken1[i] = randint(80, 110) / float(100)
+    shaken2[i] = -randint(80, 110) / float(100)
     shakenWeights += [tuple(shaken1)]
     shakenWeights += [tuple(shaken2)]
   (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, shakenWeights)
